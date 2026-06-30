@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="BENRO-IICTS.css" />
+    <title>BENRO - IICTS</title>
+
+ <style>
+    .new-row {
+      background-color: #ffff99;
+      transition: background-color 3s ease;
+    }
+
+    .selected-row {
+      background-color: #d9f2ff !important;
+    }
+
+    /* ===== SIDEBAR ===== */
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: -260px;
+  width: 250px;
+  height: 100vh;
+  background: #1f2940;
+  color: white;
+  z-index: 9999;
+  box-shadow: -4px 0 15px rgba(0,0,0,0.25);
+  transition: right 0.3s ease;
+}
+
+/* When sidebar opens */
+.sidebar.open {
+  right: 0;
+}
+
+/* IMPORTANT: do not push the page */
+.main-content {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  width: 100% !important;
+  transition: none !important;
+  transform: none !important;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* Keep selected CLIENT / DOCUMENT steady */
+.selected-info {
+  position: relative;
+  z-index: 1;
+}
+
+    .profile-section {
+      text-align: center;
+      padding: 30px 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .profile-circle {
+      width: 110px;
+      height: 110px;
+      margin: auto;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 4px solid white;
+      background: white;
+    }
+
+    .profile-circle img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .profile-section h2 {
+      margin: 12px 0 3px;
+      font-size: 20px;
+    }
+
+    .profile-section p {
+      margin: 0;
+      font-size: 13px;
+      color: #ccc;
+    }
+
+    .menu {
+      list-style: none;
+      padding: 0;
+      margin: 20px 0 0;
+    }
+
+    .menu li a {
+      display: block;
+      padding: 15px 25px;
+      color: white;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    .menu li a:hover {
+      background: rgba(255,255,255,0.12);
+      padding-left: 35px;
+    }
+
+    .main-content {
+      margin-left: 250px;
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+  </style>
+</head>
+
+
+
+   
+
+<body>
+
+ <!-- TOGGLE BUTTON -->
+<button id="sidebarToggle" class="sidebar-toggle">☰</button>
+
+  <!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+    <div class="profile-section">
+      <div class="profile-circle">
+        <img id="sidebarProfilePic" src="photos/logopgb.png" alt="User Profile">
+      </div>
+
+      <h2 id="sidebarEmployeeName">ADMIN USER</h2>
+      <p id="sidebarUserPosition">Division Head</p>
+    </div>
+
+   <ul class="menu">
+  <li>
+    <a href="#" id="logoutBtn" class="logout-only">
+      ↩ Logout
+    </a>
+  </li>
+</ul>
+  </div>
+
+
+
+  
+  <div class="header">
+    <img src="photos/logopgb.png" alt="Logo" class="logo" />
+
+
+    
+    <div class="text-group">
+      <span class="title">BUKIDNON ENVIRONMENT AND NATURAL RESOURCES OFFICE</span>
+      <span class="subtitle">INTERNAL INFORMATION COMMUNICATION TRACKING SYSTEM</span>
+    </div>
+  </div>
+
+<div class="panel">
+  
+
+  <div class="dataentry ">
+    
+    <div class="floating-input-group1">
+  <input type="text" id="client" name="client" placeholder=" " required autocomplete="off"/>
+  <label for="client">CLIENT / DIVISION / DEPARTMENT</label>
+</div>
+
+
+ <div class="floating-input-group11">
+  <input type="text" id="GENDER" list="gender" placeholder=" " required />
+  <label for="GENDER">GENDER</label>
+
+  <!-- Suggestion box for months -->
+  <datalist id="gender">
+    <option value="MALE">
+    <option value="FEMALE">
+   
+  </datalist>
+</div>
+
+
+
+
+ <div class="floating-input-group12">
+  <input
+    type="text"
+    id="TYPEOFDOCUMENT"
+    name="TYPEOFDOCUMENT"
+    list="TYPEOFDOCUMENT_LIST"
+    placeholder=" "
+    required
+  />
+
+  <label for="TYPEOFDOCUMENT">TYPE OF DOCUMENT</label>
+
+  <datalist id="TYPEOFDOCUMENT_LIST">
+    <option value="COMMUNICATION INCOMING"></option>
+    <option value="COMMUNICATION OUTGOING"></option>
+  </datalist>
+</div>
+
+
+<div class="floating-input-group2">
+  <input type="text" id="document" name="document" placeholder=" "required autocomplete="off"/>
+  <label for="document">DOCUMENT</label>
+</div>
+
+
+
+
+
+<div class="datereceivedod">
+  <input type="datetime-local" id="dateReceivedOD" name="dateReceivedOD" placeholder=" " required autocomplete="off"/>
+  <label for="dateReceivedOD">DATE RECEIVED OD</label>
+</div>
+
+
+
+<div class="dateroutedpenro">
+  <input type="datetime-local" id="dateRoutedPenro" name="dateRoutedPenro" placeholder=" " required autocomplete="off"/>
+  <label for="dateRoutedPenro">DATE ROUTED TO PENRO</label>
+</div>
+
+
+<div class="datereleasedfrompenro">
+  <input type="datetime-local" id="dateReleasedPenro" name="dateReleasedPenro" placeholder=" " required autocomplete="off"/>
+  <label for="dateReleasedPenro">DATE RELEASED FROM PENRO</label>
+</div>
+
+
+
+<div class="floating-input-group13">
+  <input
+    type="text"
+    id="division"
+    name="division"
+    list="divisionlist"
+    placeholder=" "
+    required
+    autocomplete="off"
+  />
+  <label for="division">DIVISION</label>
+
+  <datalist id="divisionlist">
+    <option value="AMD - ADMINISTRATIVE MANAGEMENT DIVISION"></option>
+    <option value="NRMD - NATURAL RESOURCES MANAGEMENT DIVISION "></option>
+    <option value="MGMD - MINES & GEOSCIENCES MANAGEMENT DIVISION"></option>
+    <option value="EMDD - ENVIRONMENTAL MANAGEMENT AND DEVELOPMENT DIVISION"></option>
+    <option value="ERDPPMD - ECOSYSTEM RESEARCH AND DEVELOPMENT PLANNING AND POLICY MANAGEMENT DIVISION"></option>
+  </datalist>
+</div>
+
+
+<div class="datereleased">
+  <input
+    type="datetime-local"
+    id="dateReleased"
+    name="dateReleased"
+    placeholder=" "
+    required
+    autocomplete="off"
+  />
+  <label for="dateReleased">DATE RELEASED</label>
+</div>
+
+
+
+<div class="floating-input-group14">
+  <input
+    type="text"
+    id="personnel"
+    name="personnel"
+    placeholder=" "
+    required
+    autocomplete="off"
+  />
+  <label for="personnel">RECEIVED BY</label>
+</div>
+
+
+<div class="floating-input-group file-group">
+  <input type="file" id="fileInput" multiple />
+  <label for="fileInput">Upload File(s)</label>
+  <ul id="fileList"></ul>
+</div>
+  </div>
+
+
+<div class="BUTTONSS">
+
+
+
+<div class="form-buttons">
+  <button type="button" id="saveBtn" class="btn save">SAVE DATA</button>
+  <button class="btn cancel">CANCEL</button>
+
+
+ 
+
+
+  
+</div>
+
+
+</div>
+
+
+<div id="saveNotification" class="modal-notification">
+  <div class="modal-content">
+    <div class="status-icon">
+      <div class="spinner"></div>
+      <div class="checkmark"><div class="check"></div></div>
+    </div>
+    <span class="message">Saving...</span>
+    <button id="notificationOkBtn">OK</button>
+  </div>
+</div>
+
+
+<div id="toast">
+  <span class="toast-text">DATA SAVED!</span>
+  <span class="toast-check">&#10003;</span> <!-- Checkmark -->
+</div>
+
+
+
+
+<div class="search-container">
+  <input
+    type="text"
+    id="searchBox"
+    placeholder="Search records..."
+  />
+
+  <button type="button" id="searchBtn" class="btn search">
+    SEARCH
+  </button>
+</div>
+
+<div class="datatable">
+  <div class="table-container">
+    <table id="dataGrid">
+      <thead>
+        <tr>
+          <th>SERIAL NO.</th>
+          <th>CLIENT/DIVISION/DEPARTMENT</th>
+          <th>GENDER</th>
+          <th>TYPE OF DOCUMENT</th>
+          <th>DOCUMENT</th>
+          <th>DATE RECEIVED OD</th>
+          <th>DATE ROUTED TO PENRO</th>
+          <th>DATE RELEASED PENRO</th>
+          <th>DIVISION</th>
+          <th>DATE RELEASED</th>
+          <th>RECEIVED BY</th>
+          <th>FILE</th>
+          <th>ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Rows added dynamically via JS -->
+      </tbody>
+    </table>
+
+
+  </div>
+</div>
+
+
+</div>
+
+<!-- SAVE DATA MODAL NOTIFICATION -->
+<div id="savingDataModal" class="saving-modal">
+  <div class="saving-box">
+    <div class="saving-spinner"></div>
+    <div class="saving-checkmark">✓</div>
+    <div id="savingMessage">Saving Data...</div>
+    <button type="button" id="savingOkBtn">OK</button>
+  </div>
+</div>
+
+
+
+
+
+<!-- ✅ STARTUP LOADING SCREEN -->
+<div id="startupLoader" class="startup-loader show">
+  <div class="loader-box">
+    <div class="loader-spinner"></div>
+    <div class="loader-title">LOADING DATA</div>
+    <div class="loader-subtitle">Please wait while records are being loaded...</div>
+  </div>
+</div>
+
+<script src="BENRO-IICTS.js"></script> 
+
+
+</body>
+</html>

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="photos/logopgb.ico">
+  <link rel="stylesheet" href="BENRO-IICTS_DIVISION.css" />
+  <title>BENRO - IICTS: DIVISION HEAD'S COMMUNICATION TRACKER</title>
+
+   <style>
+    .new-row {
+      background-color: #ffff99;
+      transition: background-color 3s ease;
+    }
+
+    .selected-row {
+      background-color: #d9f2ff !important;
+    }
+
+    /* ===== SIDEBAR ===== */
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: -260px;
+  width: 250px;
+  height: 100vh;
+  background: #1f2940;
+  color: white;
+  z-index: 9999;
+  box-shadow: -4px 0 15px rgba(0,0,0,0.25);
+  transition: right 0.3s ease;
+}
+
+/* When sidebar opens */
+.sidebar.open {
+  right: 0;
+}
+
+/* IMPORTANT: do not push the page */
+.main-content {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  width: 100% !important;
+  transition: none !important;
+  transform: none !important;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* Keep selected CLIENT / DOCUMENT steady */
+.selected-info {
+  position: relative;
+  z-index: 1;
+}
+
+    .profile-section {
+      text-align: center;
+      padding: 30px 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .profile-circle {
+      width: 110px;
+      height: 110px;
+      margin: auto;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 4px solid white;
+      background: white;
+    }
+
+    .profile-circle img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .profile-section h2 {
+      margin: 12px 0 3px;
+      font-size: 20px;
+    }
+
+    .profile-section p {
+      margin: 0;
+      font-size: 13px;
+      color: #ccc;
+    }
+
+    .menu {
+      list-style: none;
+      padding: 0;
+      margin: 20px 0 0;
+    }
+
+    .menu li a {
+      display: block;
+      padding: 15px 25px;
+      color: white;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    .menu li a:hover {
+      background: rgba(255,255,255,0.12);
+      padding-left: 35px;
+    }
+
+    .main-content {
+      margin-left: 250px;
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+  </style>
+</head>
+
+<body>
+
+
+  <!-- NOTIFICATION BELL -->
+<div class="notification-wrapper" id="notificationWrapper">
+  <button type="button" id="notificationBell" class="notification-bell">
+    &#128276;&#65038;
+  <span id="notificationCount" class="notification-count">0</span>
+  </button>
+
+  <div id="notificationPanel" class="notification-panel">
+    <div class="notification-header">
+      Notifications
+    </div>
+
+    <div id="notificationList" class="notification-list">
+      <div class="notification-empty">No notifications</div>
+    </div>
+  </div>
+</div>
+
+
+
+  <!-- TOGGLE BUTTON -->
+<button id="sidebarToggle" class="sidebar-toggle">☰</button>
+
+  <!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+    <div class="profile-section">
+      <div class="profile-circle">
+        <img id="sidebarProfilePic" src="photos/logopgb.png" alt="User Profile">
+      </div>
+
+      <h2 id="sidebarEmployeeName">ADMIN USER</h2>
+      <p id="sidebarUserPosition">Division Head</p>
+    </div>
+
+   <ul class="menu">
+  <li>
+    <a href="#" id="logoutBtn" class="logout-only">
+      ↩ Logout
+    </a>
+  </li>
+</ul>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+
+    <div class="header">
+      <img src="photos/logopgb.png" alt="Logo" class="logo" />
+      <div class="text-group">
+        <span class="title">BUKIDNON ENVIRONMENT AND NATURAL RESOURCES OFFICE</span>
+        <span class="subtitle">INTERNAL INFORMATION COMMUNICATION TRACKING SYSTEM</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h1 class="titlehead">DIVISION HEAD'S COMMUNICATION TRACKER</h1>
+
+      <div class="search-container">
+        <input type="text" id="searchBox" placeholder="Search records..." />
+        <button id="searchBtn">Search</button>
+      </div>
+
+      <div class="dataentry">
+        <div class="datatable">
+          <div class="table-container">
+            <table id="dataGrid" border="1">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>SERIAL NUMBER</th>
+                  <th>CLIENT</th>
+                  <th>GENDER</th>
+                  <th>TYPE OF DOCUMENT</th>
+                  <th>SUBJECT OF DOCUMENT</th>
+                  <th>ACTION TAKEN</th>
+                  <th>PERSONNEL IN-CHARGE</th>
+                  <th>DOCUMENT CLASSIFICATION</th>
+                  <th>DATE RECEIVED OD</th>
+                  <th>DATE ROUTED TO PENRO</th>
+                  <th>DATE RELEASED PENRO</th>
+                  <th>DIVISION</th>
+                  <th>DATE RELEASED</th>
+                  <th>FILE URL</th>
+                  <th>ACTION</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-row">
+
+        <div class="field">
+          <input type="text" id="OUTCOME" placeholder="ACTION TAKEN">
+        </div>
+
+        <div class="field">
+          <div class="multi-select-wrapper">
+            <div class="multi-select-box" id="personnelSelectBox">
+              <div class="multi-select-display" id="personnelDisplay">
+                <span class="placeholder-text">PERSONNEL IN-CHARGE</span>
+              </div>
+              <div class="multi-select-arrow">▼</div>
+            </div>
+
+            <div class="multi-select-dropdown" id="personnelDropdown">
+              <input
+                type="text"
+                id="personnelSearch"
+                class="multi-search"
+                placeholder="Search employee..."
+              />
+              <div id="personnelOptions"></div>
+            </div>
+
+            <input type="hidden" id="PERSONNEL" />
+          </div>
+        </div>
+
+        <div class="field">
+          <input
+            type="text"
+            id="DOCUMENT"
+            placeholder="DOCUMENT CLASSIFICATION"
+            list="documentList"
+          >
+
+          <datalist id="documentList">
+            <option value="NO ACTION REQUIRED">
+            <option value="SIMPLE">
+            <option value="COMPLEX">
+            <option value="TECHNICAL">
+          </datalist>
+        </div>
+
+        <button id="saveBtn" class="update-btn">UPDATE</button>
+        <button id="clearBtn" class="clear-btn">CLEAR</button>
+      </div>
+
+      <input type="hidden" id="rowIndex" />
+
+      <div id="viewModal" class="modal-notification">
+        <div class="modal-content">
+          <h2>Record Details</h2>
+          <div id="recordDetails"></div>
+          <button id="closeModalBtn">Close</button>
+        </div>
+      </div>
+
+      <div id="rowModal" class="modal-notification">
+        <div class="modal-content">
+          <h2>COMMUNICATION DETAILS</h2>
+          <div id="rowDataContainer"></div>
+          <button id="closeRowModalBtn">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="selected-info">
+      <h1 class="clientt">CLIENT:</h1>
+      <h2 class="documentt">DOCUMENT:</h2>
+
+      <h1 class="clienttsource" id="clientSource">-</h1>
+      <h2 class="documenttsource" id="documentSource">-</h2>
+    </div>
+
+    <!-- INSTRUCTION MODAL -->
+    <div id="instructionModal" class="instruction-modal">
+      <div class="instruction-modal-box">
+        <div class="instruction-modal-header">
+          <h2>Instructions</h2>
+          <span id="closeInstructionModal" class="instruction-close">&times;</span>
+        </div>
+
+        <div class="instruction-modal-body">
+          <div class="instruction-group">
+            <label for="instructionPersonnel">Personnel</label>
+            <input type="text" id="instructionPersonnel" readonly>
+          </div>
+
+          <div class="instruction-group">
+            <label for="instructionDocument">Document Classification</label>
+            <input type="text" id="instructionDocument" readonly>
+          </div>
+
+          <div class="instruction-group">
+            <label for="instructionMessage">Instruction Message</label>
+            <textarea
+              id="instructionMessage"
+              rows="6"
+              placeholder="Type your instruction here..."
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="instruction-modal-footer">
+          <button type="button" id="sendInstructionBtn" class="send-instruction-btn">Save</button>
+          <button type="button" id="cancelInstructionBtn" class="cancel-instruction-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="updateSuccessOverlay" class="update-success-overlay">
+      <div class="update-success-box">
+        <div class="update-success-check">✔</div>
+        <div class="update-success-text">UPDATED SUCCESSFULLY</div>
+      </div>
+    </div>
+
+    <div id="actionTakenModal" class="modal-notification">
+      <div class="modal-content">
+        <h2>ACTION TAKEN</h2>
+        <div id="actionTakenContent"></div>
+        <button id="closeActionTakenModal">Close</button>
+      </div>
+    </div>
+
+  </div>
+
+
+  <div id="loginLoader" class="login-loader">
+  <div class="spinner"></div>
+</div>
+
+
+
+<!-- ✅ STARTUP LOADING SCREEN -->
+<div id="startupLoader" class="startup-loader show">
+  <div class="loader-box">
+    <div class="loader-spinner"></div>
+    <div class="loader-title">LOADING DATA</div>
+    <div class="loader-subtitle">Please wait while records are being loaded...</div>
+  </div>
+</div>
+
+  
+
+  <script src="BENRO-IICTS_DIVISION.js"></script>
+
+
+ 
+
+
+</body>
+</html>
