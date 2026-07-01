@@ -440,6 +440,30 @@ function setupPersonnelDropdown() {
   });
 }
 
+function normalizeReleaseStatus(value) {
+  return String(value || "")
+    .replace(/\u00A0/g, " ")
+    .trim()
+    .toUpperCase();
+}
+
+function getReleaseStatusFromRow(row) {
+  const key = Object.keys(row).find(k =>
+    normalizeReleaseStatus(k) === "RELEASE STATUS" ||
+    normalizeReleaseStatus(k) === "STATUS"
+  );
+
+  return key ? row[key] : "";
+}
+
+function isReleasedRow(row) {
+  return normalizeReleaseStatus(getReleaseStatusFromRow(row)) === "RELEASED";
+}
+
+
+
+
+
 /* ==============================
    DATA LOAD
 ============================== */
@@ -499,14 +523,19 @@ async function loadDataFromSheet(showAlert = false, showLoader = false) {
     }
 
     // ✅ Create allRows first
-    allRows = rows.map((row, i) => ({
-      ...row,
-      __rowIndex: i + 2
-    }));
+allRows = rows.map((row, i) => ({
+  ...row,
+  __rowIndex: i + 2
+}));
 
-    // ✅ Then filter by logged-in division
-    let filteredRows = allRows;
-    let allowedDivisions = [];
+// ✅ JS ONLY FIX:
+// Show ONLY records declared as RELEASED
+// If RELEASE STATUS is blank, PENDING, or anything else, it will NOT appear
+const releasedRows = allRows.filter(row => isReleasedRow(row));
+
+// ✅ Then filter by logged-in division
+let filteredRows = releasedRows;
+let allowedDivisions = [];
 
     if (loggedInDivision) {
       allowedDivisions = loggedInDivision
@@ -514,7 +543,7 @@ async function loadDataFromSheet(showAlert = false, showLoader = false) {
         .map(div => div.trim().toUpperCase())
         .filter(div => div !== "");
 
-      filteredRows = allRows.filter(row => {
+      filteredRows = releasedRows.filter(row => {
         const rowDivision = String(row["DIVISION"] || "")
           .trim()
           .toUpperCase();
@@ -1512,7 +1541,7 @@ document.getElementById("logoutBtn").addEventListener("click", function (e) {
     localStorage.removeItem("benroProfile");
     localStorage.removeItem("instructionStore");
 
-    window.location.href = "index.html";
+    window.location.href = "BENRO-IICTS_LOGIN.html";
   }, 900);
 });
 
