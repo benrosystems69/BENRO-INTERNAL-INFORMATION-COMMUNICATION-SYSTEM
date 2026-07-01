@@ -1943,8 +1943,8 @@ function setupNotificationBell() {
 }
 
 // ===== UPDATE NOTIFICATION DATA =====
+// ===== UPDATE NOTIFICATION DATA =====
 const NOTIFIED_RELEASE_KEYS = "BENRO_DIVISION_NOTIFIED_RELEASE_KEYS";
-let pendingRingtoneRows = [];
 
 function getNotifiedReleaseKeys() {
   try {
