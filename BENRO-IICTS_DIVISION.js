@@ -1834,7 +1834,22 @@ function saveSeenNotifications(seenList) {
 
 // ===== UNIQUE KEY PER RECORD =====
 function getNotificationKey(row) {
-  return String(row["SERIAL NUMBER"] || "").trim();
+  const serial = String(row["SERIAL NUMBER"] || "").trim();
+
+  const releaseStatus = normalizeReleaseStatus(
+    getReleaseStatusFromRow(row)
+  );
+
+  const releaseDate = String(
+    row["DATE RELEASED PENRO"] ||
+    row["DATE RELEASED"] ||
+    ""
+  ).trim();
+
+  // ✅ This makes RELEASED status a new notification event
+  return serial
+    ? `${serial}|${releaseStatus}|${releaseDate}`
+    : "";
 }
 
 // ===== GET DATE FOR TIMEFRAME =====
@@ -1937,15 +1952,22 @@ function updateNotificationBell(rows) {
     .map(row => getNotificationKey(row))
     .filter(Boolean);
 
-  // Do not ring during startup
+  // ✅ Do not ring during first page load
   if (!firstNotificationLoad) {
-
     const newKeys = currentKeys.filter(
       key => !previousNotificationKeys.includes(key)
     );
 
     if (newKeys.length > 0) {
+      const newRows = currentNotificationRows.filter(row =>
+        newKeys.includes(getNotificationKey(row))
+      );
+
+      console.log("🔔 NEW RELEASED DIVISION NOTIFICATION:", newRows);
+
       startNotificationRingtone();
+      showReleaseNotificationPopup(newRows);
+      showBrowserReleaseNotification(newRows);
     }
   }
 
@@ -1955,6 +1977,74 @@ function updateNotificationBell(rows) {
   renderNotificationList();
   updateNotificationCount();
 }
+
+
+function showReleaseNotificationPopup(rows) {
+  if (!rows || rows.length === 0) return;
+
+  let toast = document.getElementById("divisionReleaseToast");
+
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "divisionReleaseToast";
+
+    toast.style.position = "fixed";
+    toast.style.top = "90px";
+    toast.style.right = "25px";
+    toast.style.zIndex = "999999";
+    toast.style.background = "#0f5132";
+    toast.style.color = "#fff";
+    toast.style.padding = "14px 18px";
+    toast.style.borderRadius = "10px";
+    toast.style.boxShadow = "0 8px 25px rgba(0,0,0,0.25)";
+    toast.style.fontSize = "14px";
+    toast.style.fontWeight = "700";
+    toast.style.maxWidth = "360px";
+    toast.style.display = "none";
+
+    document.body.appendChild(toast);
+  }
+
+  const firstRow = rows[0];
+
+  const client = firstRow["CLIENT"] || "-";
+  const documentTitle = firstRow["DOCUMENT"] || "-";
+
+  toast.innerHTML = `
+    🔔 NEW RELEASED COMMUNICATION<br>
+    <span style="font-weight:500;">
+      ${escapeHTML(client)} | ${escapeHTML(documentTitle)}
+    </span>
+  `;
+
+  toast.style.display = "block";
+
+  setTimeout(() => {
+    toast.style.display = "none";
+  }, 7000);
+}
+
+function showBrowserReleaseNotification(rows) {
+  if (!rows || rows.length === 0) return;
+
+  if (typeof Notification === "undefined") return;
+
+  if (Notification.permission === "default") {
+    Notification.requestPermission();
+    return;
+  }
+
+  if (Notification.permission !== "granted") return;
+
+  const firstRow = rows[0];
+
+  new Notification("NEW RELEASED COMMUNICATION", {
+    body: `${firstRow["CLIENT"] || "-"} | ${firstRow["DOCUMENT"] || "-"}`
+  });
+}
+
+
+
 // ===== UPDATE RED COUNT =====
 function updateNotificationCount() {
   const countBox = document.getElementById("notificationCount");
@@ -2073,11 +2163,39 @@ let firstNotificationLoad = true;
 
 
 
+let notificationAudioUnlocked = false;
+
+function unlockNotificationAudio() {
+  if (notificationAudioUnlocked) return;
+
+  notificationAudio.volume = 1;
+
+  notificationAudio.play()
+    .then(() => {
+      notificationAudio.pause();
+      notificationAudio.currentTime = 0;
+      notificationAudioUnlocked = true;
+      console.log("Notification audio unlocked.");
+    })
+    .catch(err => {
+      console.log("Audio still blocked until user clicks:", err);
+    });
+}
+
+// ✅ Unlock ringtone after first user click anywhere on page
+document.addEventListener("click", unlockNotificationAudio, { once: true });
+
 function playNotificationSound() {
   notificationAudio.currentTime = 0;
 
   notificationAudio.play().catch(err => {
-    console.log("Audio blocked:", err);
+    console.log("Audio blocked by browser:", err);
+
+    // ✅ Even if audio is blocked, user still gets visual notice
+    const toast = document.getElementById("divisionReleaseToast");
+    if (toast) {
+      toast.style.display = "block";
+    }
   });
 }
 
