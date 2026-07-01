@@ -12,7 +12,11 @@ const tableBody = document.querySelector("#dataGrid tbody");
 const searchBox = document.getElementById("searchBox");
 const searchBtn = document.getElementById("searchBtn");
 
-const outcomeInput = document.getElementById("OUTCOME");
+const outcomeInput =
+  document.getElementById("OUTCOME") ||
+  document.getElementById("ACTION_TAKEN") ||
+  document.querySelector("[name='OUTCOME']") ||
+  document.querySelector("[name='ACTION_TAKEN']");
 const personnelInput = document.getElementById("PERSONNEL");
 const documentInput = document.getElementById("DOCUMENT");  
 const rowIndexInput = document.getElementById("rowIndex");
@@ -24,7 +28,7 @@ const documentSource = document.getElementById("documentSource");
 
 const personnelDisplay = document.getElementById("personnelDisplay");
 const personnelHidden = document.getElementById("PERSONNEL");
-const actionTakenInput = document.getElementById("ACTION_TAKEN") || { value: "" }; 
+const actionTakenInput = outcomeInput || { value: "" };
 
 console.log("tableBody =", tableBody);
 console.log("googleSheetsUrl =", googleSheetsUrl);
@@ -995,6 +999,11 @@ async function updateRecord(e) {
     e.stopPropagation();
   }
 
+  if (!outcomeInput) {
+    alert("❌ ACTION TAKEN input not found. Check if your textarea/input ID is OUTCOME or ACTION_TAKEN.");
+    return;
+  }
+
   const rowIndex = rowIndexInput.value.trim();
 
   if (!rowIndex) {
@@ -1031,7 +1040,7 @@ async function updateRecord(e) {
     localStorage.getItem("benroUsername") ||
     "UNKNOWN USER";
 
-  // ✅ Keep existing values
+  // ✅ Keep existing values from the selected row
   const existingPersonnel =
     selectedRow["PERSONNEL IN-CHARGE"] &&
     selectedRow["PERSONNEL IN-CHARGE"] !== "-"
@@ -1051,10 +1060,8 @@ async function updateRecord(e) {
   const payload = {
     action: "UPDATE_FIELDS",
 
-    // ✅ Keep rowIndex for current local sheet
     rowIndex: Number(rowIndex),
 
-    // ✅ Add serial number so backend can update safely
     serialNumber: serialNumber,
     "SERIAL NUMBER": serialNumber,
 
@@ -1087,11 +1094,8 @@ async function updateRecord(e) {
     const res = await fetch(googleSheetsUrl, {
       method: "POST",
 
-      // ✅ Apps Script-friendly, avoids CORS/preflight issue
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8"
-      },
-
+      // ✅ Do not use custom headers.
+      // This avoids Apps Script CORS/preflight problems.
       body: JSON.stringify(payload)
     });
 
@@ -1116,30 +1120,20 @@ async function updateRecord(e) {
 
     alert("✅ ACTION TAKEN updated successfully.");
 
-// ✅ Clear action taken only
-if (outcomeInput) {
-  outcomeInput.value = "";
-}
+    // ✅ Clear action taken only
+    outcomeInput.value = "";
 
-// ✅ Clear selected row safely
-if (rowIndexInput) {
-  rowIndexInput.value = "";
-}
+    // ✅ Clear selected row safely
+    if (rowIndexInput) rowIndexInput.value = "";
+    if (clientSource) clientSource.textContent = "-";
+    if (documentSource) documentSource.textContent = "-";
 
-if (clientSource) {
-  clientSource.textContent = "-";
-}
+    document.querySelectorAll("#dataGrid tbody tr").forEach(row => {
+      row.classList.remove("selected-row");
+    });
 
-if (documentSource) {
-  documentSource.textContent = "-";
-}
-
-document.querySelectorAll("#dataGrid tbody tr").forEach(row => {
-  row.classList.remove("selected-row");
-});
-
-// ✅ Reload fresh data
-loadDataFromSheet(false, false);
+    // ✅ Reload fresh data
+    loadDataFromSheet(false, false);
 
   } catch (err) {
     console.error("UPDATE ERROR:", err);
@@ -1660,7 +1654,7 @@ document.getElementById("logoutBtn").addEventListener("click", function (e) {
     localStorage.removeItem("benroProfile");
     localStorage.removeItem("instructionStore");
 
-    window.location.href = "index.html";
+    window.location.href = "BENRO-IICTS_LOGIN.html";
   }, 900);
 });
 
