@@ -1943,6 +1943,24 @@ function setupNotificationBell() {
 }
 
 // ===== UPDATE NOTIFICATION DATA =====
+const NOTIFIED_RELEASE_KEYS = "BENRO_DIVISION_NOTIFIED_RELEASE_KEYS";
+let pendingRingtoneRows = [];
+
+function getNotifiedReleaseKeys() {
+  try {
+    return JSON.parse(localStorage.getItem(NOTIFIED_RELEASE_KEYS) || "[]");
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveNotifiedReleaseKeys(keys) {
+  localStorage.setItem(
+    NOTIFIED_RELEASE_KEYS,
+    JSON.stringify([...new Set(keys)])
+  );
+}
+
 function updateNotificationBell(rows) {
   currentNotificationRows = Array.isArray(rows)
     ? rows
@@ -1952,22 +1970,37 @@ function updateNotificationBell(rows) {
     .map(row => getNotificationKey(row))
     .filter(Boolean);
 
-  // ✅ Do not ring during first page load
-  if (!firstNotificationLoad) {
-    const newKeys = currentKeys.filter(
-      key => !previousNotificationKeys.includes(key)
+  const alreadyNotifiedKeys = getNotifiedReleaseKeys();
+
+  // ✅ This works even on another device.
+  // If that device has not notified this release yet, it will alert/ring.
+  const newKeys = currentKeys.filter(
+    key => !alreadyNotifiedKeys.includes(key)
+  );
+
+  if (newKeys.length > 0) {
+    const newRows = currentNotificationRows.filter(row =>
+      newKeys.includes(getNotificationKey(row))
     );
 
-    if (newKeys.length > 0) {
-      const newRows = currentNotificationRows.filter(row =>
-        newKeys.includes(getNotificationKey(row))
-      );
+    console.log("🔔 NEW RELEASED DIVISION NOTIFICATION:", newRows);
 
-      console.log("🔔 NEW RELEASED DIVISION NOTIFICATION:", newRows);
+    // ✅ Save immediately so it does not ring again and again every refresh
+    saveNotifiedReleaseKeys([
+      ...alreadyNotifiedKeys,
+      ...newKeys
+    ]);
 
+    showReleaseNotificationPopup(newRows);
+    showBrowserReleaseNotification(newRows);
+
+    // ✅ If sound is unlocked, ring now.
+    // ✅ If not unlocked, queue it until the user clicks/taps.
+    if (notificationAudioUnlocked) {
       startNotificationRingtone();
-      showReleaseNotificationPopup(newRows);
-      showBrowserReleaseNotification(newRows);
+    } else {
+      pendingRingtoneRows = newRows;
+      showEnableSoundNotice();
     }
   }
 
@@ -2154,48 +2187,112 @@ function renderNotificationList() {
    PENRO RINGTONE NOTIFICATION
 ============================== */
 
+/* ==============================
+   DIVISION RINGTONE NOTIFICATION
+============================== */
+
 const notificationAudio = new Audio("RINGTONE/RINGTONE(2).mp3");
 notificationAudio.preload = "auto";
+notificationAudio.volume = 1;
 
 let previousNotificationKeys = [];
 let ringtoneTimer = null;
 let firstNotificationLoad = true;
-
-
-
 let notificationAudioUnlocked = false;
+let pendingRingtoneRows = [];
 
-function unlockNotificationAudio() {
-  if (notificationAudioUnlocked) return;
+// ✅ Debug if ringtone file is missing on another device/deployment
+notificationAudio.addEventListener("error", function () {
+  console.error("❌ Ringtone file not found or cannot load: RINGTONE/RINGTONE(2).mp3");
+  showEnableSoundNotice("Ringtone file cannot be loaded. Check RINGTONE/RINGTONE(2).mp3 path.");
+});
+
+function showEnableSoundNotice(customMessage) {
+  let box = document.getElementById("enableSoundNotice");
+
+  if (!box) {
+    box = document.createElement("div");
+    box.id = "enableSoundNotice";
+
+    box.style.position = "fixed";
+    box.style.bottom = "25px";
+    box.style.right = "25px";
+    box.style.zIndex = "999999";
+    box.style.background = "#842029";
+    box.style.color = "#fff";
+    box.style.padding = "14px 18px";
+    box.style.borderRadius = "10px";
+    box.style.boxShadow = "0 8px 25px rgba(0,0,0,0.25)";
+    box.style.fontSize = "14px";
+    box.style.fontWeight = "700";
+    box.style.cursor = "pointer";
+    box.style.maxWidth = "360px";
+
+    document.body.appendChild(box);
+  }
+
+  box.innerHTML = customMessage || "🔊 Tap/click here to enable notification sound on this device.";
+  box.style.display = "block";
+
+  box.onclick = function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    unlockNotificationAudio(true);
+  };
+}
+
+function hideEnableSoundNotice() {
+  const box = document.getElementById("enableSoundNotice");
+  if (box) {
+    box.style.display = "none";
+  }
+}
+
+function unlockNotificationAudio(playPending = false) {
+  if (notificationAudioUnlocked) {
+    if (playPending && pendingRingtoneRows.length > 0) {
+      startNotificationRingtone();
+      pendingRingtoneRows = [];
+    }
+    return;
+  }
 
   notificationAudio.volume = 1;
+  notificationAudio.currentTime = 0;
 
   notificationAudio.play()
     .then(() => {
       notificationAudio.pause();
       notificationAudio.currentTime = 0;
+
       notificationAudioUnlocked = true;
-      console.log("Notification audio unlocked.");
+      localStorage.setItem("BENRO_DIVISION_SOUND_ENABLED", "YES");
+
+      console.log("✅ Notification audio unlocked on this device.");
+      hideEnableSoundNotice();
+
+      if (playPending && pendingRingtoneRows.length > 0) {
+        startNotificationRingtone();
+        pendingRingtoneRows = [];
+      }
     })
     .catch(err => {
-      console.log("Audio still blocked until user clicks:", err);
+      console.log("Audio still blocked until user clicks/taps:", err);
+      showEnableSoundNotice();
     });
 }
 
-// ✅ Unlock ringtone after first user click anywhere on page
-document.addEventListener("click", unlockNotificationAudio, { once: true });
+// ✅ Any click/tap on this device can unlock sound
+document.addEventListener("click", function () {
+  unlockNotificationAudio(false);
+}, { once: true });
 
 function playNotificationSound() {
   notificationAudio.currentTime = 0;
 
   notificationAudio.play().catch(err => {
     console.log("Audio blocked by browser:", err);
-
-    // ✅ Even if audio is blocked, user still gets visual notice
-    const toast = document.getElementById("divisionReleaseToast");
-    if (toast) {
-      toast.style.display = "block";
-    }
+    showEnableSoundNotice();
   });
 }
 
@@ -2206,7 +2303,7 @@ function startNotificationRingtone() {
 
   ringtoneTimer = setInterval(() => {
     playNotificationSound();
-  }, 5000); // every 5 seconds
+  }, 5000);
 }
 
 function stopNotificationRingtone() {
@@ -2214,4 +2311,7 @@ function stopNotificationRingtone() {
     clearInterval(ringtoneTimer);
     ringtoneTimer = null;
   }
+
+  notificationAudio.pause();
+  notificationAudio.currentTime = 0;
 }
