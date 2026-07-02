@@ -3084,7 +3084,7 @@ th, td {
 
 
 .notification-bell {
-  color: white !important;
+  
   font-size: 26px !important;
 }
 
@@ -3092,115 +3092,69 @@ th, td {
 
 
 
-/* ===== NOTIFICATION NEW / UNSEEN HIGHLIGHT ===== */
 
-.notification-item.unread {
-  background: #e9fbe9 !important;
-  border-left: 6px solid #16a34a !important;
+#notificationWrapper {
+  position: fixed;
+  top: 22px;
+  right: 90px;
+  z-index: 99999;
 }
 
-.notification-item.unread:hover {
-  background: #d9f8d9 !important;
-}
-
-.notification-top-row {
+#notificationBell {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  background: #ffffff;
+  color: #0d47a1;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 800;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 5px;
+  justify-content: center;
 }
 
-.notification-type {
-  font-size: 13px;
-  font-weight: 800;
-  color: #047857;
-  text-transform: uppercase;
+#notificationBell:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.30);
 }
 
-.notification-time {
+#notificationCount {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  min-width: 19px;
+  height: 19px;
+  background: #dc3545;
+  color: #fff;
   font-size: 11px;
-  font-weight: 700;
-  color: #6b7280;
-  white-space: nowrap;
-}
-
-.notification-item.unread .notification-time {
-  color: #15803d;
-}
-
-.notification-new-badge {
-  display: inline-block;
-  margin-left: 6px;
-  padding: 2px 7px;
-  border-radius: 999px;
-  background: #16a34a;
-  color: white;
-  font-size: 10px;
   font-weight: 800;
+  border-radius: 50%;
+  display: none;
+  align-items: center;
+  justify-content: center;
 }
 
-.notification-client {
-  font-size: 14px;
-  font-weight: 700;
-  color: #111827;
-  margin-bottom: 4px;
-}
-
-.notification-document {
-  font-size: 13px;
-  color: #374151;
-  line-height: 1.35;
-}
-
-
-
-/* ===== GREEN LEFT BAR ON NOTIFICATION HOVER ===== */
-
-.notification-item {
-  position: relative !important;
-  border-left: 6px solid transparent !important;
-  transition: background 0.2s ease, border-left 0.2s ease, padding-left 0.2s ease !important;
-}
-
-/* Green bar appears when mouse hovers */
-.notification-item:hover {
-  border-left: 6px solid #16a34a !important;
-  background: #ecfdf3 !important;
-  padding-left: 18px !important;
-}
-
-/* New/unseen notification already has green bar */
-.notification-item.unread {
-  border-left: 6px solid #16a34a !important;
-  background: #e9fbe9 !important;
-}
-
-/* New/unseen hover effect */
-.notification-item.unread:hover {
-  border-left: 6px solid #15803d !important;
-  background: #d9f8d9 !important;
-}
-
-
-
-.notification-dates {
-  margin: 6px 0 8px;
-  font-size: 11px;
-  line-height: 1.4;
-}
-
-.notification-date-row {
+#notificationCount.show {
   display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
 }
 
-.notification-date-label {
-  font-weight: 600;
-  color: #5f6368;
+#notificationPanel {
+  position: absolute;
+  top: 48px;
+  right: 0;
+  width: 360px;
+  max-height: 480px;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.28);
+  display: none;
+  padding: 8px;
 }
 
-.notification-date-value {
-  color: #6b7280;
+#notificationPanel.show {
+  display: block;
 }
