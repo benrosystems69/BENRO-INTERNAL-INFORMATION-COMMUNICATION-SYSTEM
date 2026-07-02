@@ -119,19 +119,12 @@ body {
 
 <body>
 
-  <!-- NOTIFICATION BELL -->
-<div class="notification-wrapper" id="notificationWrapper">
-  <button type="button" id="notificationBell" class="notification-bell">
-    &#128276;&#65038;
-  <span id="notificationCount" class="notification-count">0</span>
-  </button>
+  <div id="notificationWrapper">
+  <button id="notificationBell" type="button" title="Notifications">🔔</button>
+  <span id="notificationCount">0</span>
 
-  <div id="notificationPanel" class="notification-panel">
-    <div class="notification-header">
-      Notifications
-    </div>
-
-    <div id="notificationList" class="notification-list">
+  <div id="notificationPanel">
+    <div id="notificationList">
       <div class="notification-empty">No notifications</div>
     </div>
   </div>
