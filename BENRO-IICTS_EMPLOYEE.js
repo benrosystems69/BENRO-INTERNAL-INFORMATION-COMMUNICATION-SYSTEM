@@ -585,56 +585,26 @@ async function loadDataFromSheet(showAlert = false, showLoader = false) {
       return;
     }
 
-   /* ==========================================
-   EMPLOYEE ASSIGNMENT DETECTION
+  /* ==========================================
+   EMPLOYEE ASSIGNMENT DETECTION - FIXED
+   Do NOT ring here.
+   Notification ringtone is handled only by updateNotificationBell().
 ========================================== */
 
-const loggedEmployee =
-  (localStorage.getItem("benroEmployee") || "")
-    .trim()
-    .toUpperCase();
+const currentAssignedKeys = filteredRows
+  .map(row => {
+    if (typeof getNotificationKey === "function") {
+      return getNotificationKey(row);
+    }
 
-const currentAssignedKeys = [];
+    return String(row["SERIAL NUMBER"] || "").trim();
+  })
+  .filter(Boolean);
 
-filteredRows.forEach(row => {
-  const serial = String(row["SERIAL NUMBER"] || "").trim();
+previousAssignedKeys = [...currentAssignedKeys];
+firstNotificationLoad = false;
 
-  const personnel = String(
-    row["PERSONNEL IN-CHARGE"] || ""
-  ).toUpperCase();
-
-  if (
-    serial &&
-    personnel.includes(loggedEmployee)
-  ) {
-    currentAssignedKeys.push(serial);
-  }
-});
-
-if (firstNotificationLoad) {
-  previousAssignedKeys = [...currentAssignedKeys];
-  firstNotificationLoad = false;
-}
-else {
-  const newAssignments =
-    currentAssignedKeys.filter(
-      key => !previousAssignedKeys.includes(key)
-    );
-
-  if (newAssignments.length > 0) {
-    console.log(
-      "🔔 New assignment received:",
-      newAssignments
-    );
-
-    startNotificationRingtone();
-  }
-
-  previousAssignedKeys =
-    [...currentAssignedKeys];
-}
-    /* ========================================================= */
-
+/* ========================================================= */
     filteredRows.sort(
       (a, b) => parseDate(b["DATE RECEIVED OD"]) - parseDate(a["DATE RECEIVED OD"])
     );
@@ -2672,4 +2642,1003 @@ function formatNotificationDate(dateString) {
 
 
 
+
+/* ==================================================
+   EMPLOYEE SYSTEM FIX PATCH
+   - Faster appearance of assigned data
+   - Notification like Division Head
+   - Ringtone works after browser audio unlock
+   - Shows Date Assigned by Division Head
+================================================== */
+
+var EMPLOYEE_NOTIFIED_ASSIGNMENTS_KEY = "BENRO_EMPLOYEE_NOTIFIED_ASSIGNMENTS_V2";
+var employeeAudioUnlocked = false;
+var employeePendingRingtone = false;
+var employeeAutoUpdateTimer = null;
+
+/* ==============================
+   DATE FIELD HELPERS
+============================== */
+function getAssignedByDivisionHeadDate(row) {
+  return (
+    row["DATE ASSIGNED BY DIVISION HEAD"] ||
+    row["DATE ASSIGNED TO EMPLOYEE"] ||
+    row["DATE ASSIGNED EMPLOYEE"] ||
+    row["DATE ASSIGNED"] ||
+    row["ASSIGNED DATE"] ||
+    ""
+  );
+}
+
+function getReceivedByDivisionDate(row) {
+  return (
+    row["DATE RECEIVED BY DIVISION HEAD"] ||
+    row["DATE RECEIVED BY DIVISION"] ||
+    row["DATE RECEIVED DIVISION"] ||
+    row["DATE RELEASED PENRO"] ||
+    row["DATE RELEASED"] ||
+    ""
+  );
+}
+
+function formatNotificationDateSafe(value) {
+  if (!value || value === "-") return "-";
+
+  const date = new Date(value);
+
+  if (isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleString("en-PH", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true
+  });
+}
+
+/* ==============================
+   NOTIFICATION KEY
+   Important: key includes assigned date,
+   so same serial can notify again if newly assigned.
+============================== */
+function getNotificationKey(row) {
+  const serial = String(row["SERIAL NUMBER"] || "").trim();
+  const employee = normalizeText(localStorage.getItem("benroEmployee") || "");
+  const assignedDate = String(getAssignedByDivisionHeadDate(row) || "").trim();
+  const personnel = normalizeText(row["PERSONNEL IN-CHARGE"] || "");
+
+  if (!serial) return "";
+
+  return `${serial}|${employee}|${assignedDate || personnel}`;
+}
+
+function getNotificationDate(row) {
+  return (
+    getAssignedByDivisionHeadDate(row) ||
+    getReceivedByDivisionDate(row) ||
+    row["DATE RECEIVED OD"] ||
+    ""
+  );
+}
+
+/* ==============================
+   NOTIFIED STORAGE
+============================== */
+function getEmployeeNotifiedAssignmentKeys() {
+  try {
+    return JSON.parse(localStorage.getItem(EMPLOYEE_NOTIFIED_ASSIGNMENTS_KEY) || "[]");
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveEmployeeNotifiedAssignmentKeys(keys) {
+  localStorage.setItem(
+    EMPLOYEE_NOTIFIED_ASSIGNMENTS_KEY,
+    JSON.stringify([...new Set(keys)])
+  );
+}
+
+/* ==============================
+   AUDIO UNLOCK FIX
+   Browser blocks sound until the user clicks/taps once.
+============================== */
+function showEnableSoundNotice(customMessage) {
+  let box = document.getElementById("enableSoundNotice");
+
+  if (!box) {
+    box = document.createElement("div");
+    box.id = "enableSoundNotice";
+
+    box.style.position = "fixed";
+    box.style.bottom = "25px";
+    box.style.right = "25px";
+    box.style.zIndex = "999999";
+    box.style.background = "#842029";
+    box.style.color = "#fff";
+    box.style.padding = "14px 18px";
+    box.style.borderRadius = "10px";
+    box.style.boxShadow = "0 8px 25px rgba(0,0,0,0.25)";
+    box.style.fontSize = "14px";
+    box.style.fontWeight = "700";
+    box.style.cursor = "pointer";
+    box.style.maxWidth = "360px";
+
+    document.body.appendChild(box);
+  }
+
+  box.innerHTML =
+    customMessage ||
+    "🔊 Tap/click here to enable notification sound on this device.";
+
+  box.style.display = "block";
+
+  box.onclick = function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    unlockNotificationAudio(true);
+  };
+}
+
+function hideEnableSoundNotice() {
+  const box = document.getElementById("enableSoundNotice");
+  if (box) box.style.display = "none";
+}
+
+function unlockNotificationAudio(playPending = false) {
+  if (!notificationAudio) return;
+
+  if (employeeAudioUnlocked) {
+    if (playPending && employeePendingRingtone) {
+      employeePendingRingtone = false;
+      startNotificationRingtone();
+    }
+    return;
+  }
+
+  notificationAudio.volume = 1;
+  notificationAudio.currentTime = 0;
+
+  notificationAudio.play()
+    .then(() => {
+      notificationAudio.pause();
+      notificationAudio.currentTime = 0;
+
+      employeeAudioUnlocked = true;
+      localStorage.setItem("BENRO_EMPLOYEE_SOUND_ENABLED", "YES");
+
+      hideEnableSoundNotice();
+      console.log("✅ Employee notification sound unlocked.");
+
+      if (playPending && employeePendingRingtone) {
+        employeePendingRingtone = false;
+        startNotificationRingtone();
+      }
+    })
+    .catch(err => {
+      console.log("Audio still blocked until user clicks/taps:", err);
+      showEnableSoundNotice();
+    });
+}
+
+document.addEventListener("click", function () {
+  unlockNotificationAudio(false);
+}, { once: true });
+
+document.addEventListener("keydown", function () {
+  unlockNotificationAudio(false);
+}, { once: true });
+
+if (notificationAudio) {
+  notificationAudio.volume = 1;
+
+  notificationAudio.addEventListener("error", function () {
+    console.error("❌ Ringtone file cannot load: RINGTONE/RINGTONE(2).mp3");
+    showEnableSoundNotice("Ringtone file cannot load. Check: RINGTONE/RINGTONE(2).mp3");
+  });
+}
+
+function playNotificationSound() {
+  if (!notificationAudio) return;
+
+  notificationAudio.currentTime = 0;
+
+  notificationAudio.play().catch(err => {
+    console.log("Audio blocked by browser:", err);
+    employeePendingRingtone = true;
+    showEnableSoundNotice();
+  });
+}
+
+function startNotificationRingtone() {
+  if (ringtoneTimer) return;
+
+  if (!employeeAudioUnlocked) {
+    employeePendingRingtone = true;
+    showEnableSoundNotice();
+    return;
+  }
+
+  playNotificationSound();
+
+  ringtoneTimer = setInterval(() => {
+    playNotificationSound();
+  }, 5000);
+}
+
+function stopNotificationRingtone() {
+  if (ringtoneTimer) {
+    clearInterval(ringtoneTimer);
+    ringtoneTimer = null;
+  }
+
+  if (notificationAudio) {
+    notificationAudio.pause();
+    notificationAudio.currentTime = 0;
+  }
+
+  employeePendingRingtone = false;
+}
+
+/* ==============================
+   OPTIONAL POPUP LIKE DIVISION HEAD
+============================== */
+function showEmployeeAssignmentPopup(rows) {
+  if (!rows || rows.length === 0) return;
+
+  let toast = document.getElementById("employeeAssignmentToast");
+
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "employeeAssignmentToast";
+
+    toast.style.position = "fixed";
+    toast.style.top = "90px";
+    toast.style.right = "25px";
+    toast.style.zIndex = "999998";
+    toast.style.width = "330px";
+    toast.style.background = "#ffffff";
+    toast.style.borderLeft = "6px solid #198754";
+    toast.style.borderRadius = "10px";
+    toast.style.boxShadow = "0 8px 25px rgba(0,0,0,0.25)";
+    toast.style.padding = "14px 16px";
+    toast.style.fontFamily = "Arial, sans-serif";
+    toast.style.display = "none";
+
+    document.body.appendChild(toast);
+  }
+
+  const first = rows[0];
+
+  toast.innerHTML = `
+    <div style="font-weight:800; color:#198754; margin-bottom:6px;">
+      🔔 NEW ASSIGNMENT RECEIVED
+    </div>
+
+    <div style="font-size:13px; color:#333; line-height:1.4;">
+      <strong>${escapeHTML(first["TYPE OF DOCUMENT"] || "-")}</strong><br>
+      ${escapeHTML(first["CLIENT"] || "-")}<br>
+      ${escapeHTML(first["DOCUMENT"] || "-")}
+    </div>
+
+    <div style="font-size:12px; margin-top:8px; color:#555;">
+      Assigned by Division Head:
+      <strong>${escapeHTML(formatNotificationDateSafe(getAssignedByDivisionHeadDate(first)))}</strong>
+    </div>
+  `;
+
+  toast.style.display = "block";
+
+  setTimeout(() => {
+    toast.style.display = "none";
+  }, 7000);
+}
+
+function showBrowserEmployeeAssignmentNotification(rows) {
+  if (!rows || rows.length === 0) return;
+
+  if (typeof Notification === "undefined") return;
+
+  if (Notification.permission === "default") {
+    Notification.requestPermission();
+    return;
+  }
+
+  if (Notification.permission === "granted") {
+    const first = rows[0];
+
+    new Notification("New assignment received", {
+      body: `${first["CLIENT"] || "-"} | ${first["DOCUMENT"] || "-"}`
+    });
+  }
+}
+
+/* ==============================
+   UPDATE NOTIFICATION BELL
+   This rings once per device/browser for new assignments.
+============================== */
+function updateNotificationBell(rows) {
+  currentNotificationRows = Array.isArray(rows) ? rows : [];
+
+  const currentKeys = currentNotificationRows
+    .map(row => getNotificationKey(row))
+    .filter(Boolean);
+
+  const seenKeys = getSeenNotifications();
+  const alreadyNotifiedKeys = getEmployeeNotifiedAssignmentKeys();
+
+  const newKeys = currentKeys.filter(key =>
+    !alreadyNotifiedKeys.includes(key) &&
+    !seenKeys.includes(key)
+  );
+
+  if (newKeys.length > 0) {
+    const newRows = currentNotificationRows.filter(row =>
+      newKeys.includes(getNotificationKey(row))
+    );
+
+    console.log("🔔 NEW EMPLOYEE ASSIGNMENT:", newRows);
+
+    saveEmployeeNotifiedAssignmentKeys([
+      ...alreadyNotifiedKeys,
+      ...newKeys
+    ]);
+
+    showEmployeeAssignmentPopup(newRows);
+    showBrowserEmployeeAssignmentNotification(newRows);
+
+    if (employeeAudioUnlocked) {
+      startNotificationRingtone();
+    } else {
+      employeePendingRingtone = true;
+      showEnableSoundNotice();
+    }
+  }
+
+  previousAssignedKeys = [...currentKeys];
+
+  renderNotificationList();
+  updateNotificationCount();
+}
+
+/* ==============================
+   COUNT
+============================== */
+function updateNotificationCount() {
+  const countBox = document.getElementById("notificationCount");
+  if (!countBox) return;
+
+  const seen = getSeenNotifications();
+
+  const unreadRows = currentNotificationRows.filter(row => {
+    const key = getNotificationKey(row);
+    return key && !seen.includes(key);
+  });
+
+  const count = unreadRows.length;
+
+  countBox.textContent = count > 99 ? "99+" : count;
+
+  if (count > 0) {
+    countBox.classList.add("show");
+  } else {
+    countBox.classList.remove("show");
+  }
+}
+
+/* ==============================
+   RENDER NOTIFICATION LIST
+============================== */
+function renderNotificationList() {
+  const list = document.getElementById("notificationList");
+  if (!list) return;
+
+  const seen = getSeenNotifications();
+
+  if (!currentNotificationRows.length) {
+    list.innerHTML = `<div class="notification-empty">No notifications</div>`;
+    return;
+  }
+
+  list.innerHTML = currentNotificationRows.map(row => {
+    const key = getNotificationKey(row);
+    const isUnread = key && !seen.includes(key);
+    const unreadClass = isUnread ? "unread" : "";
+
+    const typeOfDocument = row["TYPE OF DOCUMENT"] || "-";
+    const client = row["CLIENT"] || "-";
+    const documentTitle = row["DOCUMENT"] || "-";
+    const rowIndex = row.__rowIndex || "";
+
+    const timeAgo = getTimeAgo(getNotificationDate(row));
+
+    const receivedDivisionDate = getReceivedByDivisionDate(row);
+    const assignedEmployeeDate = getAssignedByDivisionHeadDate(row);
+
+    return `
+      <div 
+        class="notification-item ${unreadClass}" 
+        data-row-index="${rowIndex}"
+        data-notification-key="${escapeHTML(key)}"
+      >
+        <div class="notification-top-row">
+          <div class="notification-type">
+            ${escapeHTML(typeOfDocument)}
+            ${isUnread ? '<span class="notification-new-badge">NEW</span>' : ''}
+          </div>
+
+          <div class="notification-time">
+            ${escapeHTML(timeAgo)}
+          </div>
+        </div>
+
+        <div class="notification-dates">
+          ${
+            receivedDivisionDate
+              ? `
+                <div class="notification-date-row">
+                  <span class="notification-date-label">Received/Released:</span>
+                  <span class="notification-date-value">
+                    ${escapeHTML(formatNotificationDateSafe(receivedDivisionDate))}
+                  </span>
+                </div>
+              `
+              : ""
+          }
+
+          ${
+            assignedEmployeeDate
+              ? `
+                <div class="notification-date-row">
+                  <span class="notification-date-label">Assigned by Division Head:</span>
+                  <span class="notification-date-value">
+                    ${escapeHTML(formatNotificationDateSafe(assignedEmployeeDate))}
+                  </span>
+                </div>
+              `
+              : ""
+          }
+        </div>
+
+        <div class="notification-client">
+          ${escapeHTML(client)}
+        </div>
+
+        <div class="notification-document">
+          ${escapeHTML(documentTitle)}
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  document.querySelectorAll(".notification-item").forEach(item => {
+    item.addEventListener("click", function () {
+      const rowIndex = this.dataset.rowIndex;
+      const notificationKey = this.dataset.notificationKey;
+
+      markNotificationAsSeen(notificationKey);
+
+      document.getElementById("notificationPanel")?.classList.remove("show");
+
+      const tableRow = document.querySelector(
+        `#dataGrid tbody tr[data-row-index="${rowIndex}"]`
+      );
+
+      if (tableRow) {
+        tableRow.scrollIntoView({
+          behavior: "smooth",
+          block: "center"
+        });
+
+        tableRow.click();
+      } else if (typeof showRowDataBelowFromButton === "function") {
+        showRowDataBelowFromButton(rowIndex);
+      }
+    });
+  });
+}
+
+/* ==============================
+   MARK SEEN
+============================== */
+function markNotificationAsSeen(rowKey) {
+  stopNotificationRingtone();
+
+  if (!rowKey) return;
+
+  const seen = getSeenNotifications();
+
+  if (!seen.includes(rowKey)) {
+    seen.push(rowKey);
+    saveSeenNotifications(seen);
+  }
+
+  const notified = getEmployeeNotifiedAssignmentKeys();
+
+  if (!notified.includes(rowKey)) {
+    notified.push(rowKey);
+    saveEmployeeNotifiedAssignmentKeys(notified);
+  }
+
+  updateNotificationCount();
+  renderNotificationList();
+}
+
+/* ==============================
+   BELL SETUP
+============================== */
+function setupNotificationBell() {
+  const bell = document.getElementById("notificationBell");
+  const panel = document.getElementById("notificationPanel");
+
+  if (!bell || !panel) {
+    console.warn("Notification bell or panel not found.");
+    return;
+  }
+
+  if (bell.dataset.ready === "true") return;
+  bell.dataset.ready = "true";
+
+  bell.addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const sidebar = document.getElementById("sidebar");
+    const mainContent = document.querySelector(".main-content");
+
+    if (sidebar) sidebar.classList.remove("show");
+    if (mainContent) mainContent.classList.remove("shift");
+
+    panel.classList.toggle("show");
+
+    renderNotificationList();
+    updateNotificationCount();
+  });
+
+  panel.addEventListener("click", function (e) {
+    e.stopPropagation();
+  });
+
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest("#notificationWrapper")) {
+      panel.classList.remove("show");
+    }
+  });
+}
+
+/* ==============================
+   FASTER AUTO REFRESH
+   Does NOT pause just because a row is selected.
+============================== */
+function startAutoUpdate() {
+  if (employeeAutoUpdateTimer) {
+    clearInterval(employeeAutoUpdateTimer);
+  }
+
+  employeeAutoUpdateTimer = setInterval(() => {
+    const searchValue = searchBox ? searchBox.value.trim() : "";
+    const actionTakenValue = outcomeInput ? outcomeInput.value.trim() : "";
+
+    const instructionModal = document.getElementById("instructionModal");
+    const rowModal = document.getElementById("rowModal");
+    const actionTakenModal = document.getElementById("actionTakenModal");
+    const instructionViewModal = document.getElementById("instructionViewModal");
+
+    const modalIsOpen =
+      instructionModal?.classList.contains("show") ||
+      rowModal?.classList.contains("show") ||
+      actionTakenModal?.classList.contains("show") ||
+      instructionViewModal?.classList.contains("show");
+
+    const userIsTypingAction =
+      document.activeElement === outcomeInput ||
+      actionTakenValue !== "";
+
+    const userIsSearching =
+      searchValue !== "" ||
+      isSearching ||
+      isTypingSearch ||
+      document.activeElement === searchBox;
+
+    if (
+      userIsSearching ||
+      userIsTypingAction ||
+      modalIsOpen ||
+      saveBtn?.disabled
+    ) {
+      console.log("Auto-refresh paused while user is working.");
+      return;
+    }
+
+    loadDataFromSheet(false, false);
+  }, 2000);
+}
+
+
+/* ==================================================
+   FINAL FIX: STOP RINGTONE WHEN NOTIFICATION IS CLICKED
+   Put this at the VERY BOTTOM of employee JS
+================================================== */
+
+function forceStopEmployeeRingtone() {
+  try {
+    if (ringtoneTimer) {
+      clearInterval(ringtoneTimer);
+      ringtoneTimer = null;
+    }
+
+    if (typeof notificationAudio !== "undefined" && notificationAudio) {
+      notificationAudio.pause();
+      notificationAudio.currentTime = 0;
+    }
+
+    if (typeof employeePendingRingtone !== "undefined") {
+      employeePendingRingtone = false;
+    }
+
+    console.log("🔕 Employee notification ringtone stopped.");
+  } catch (err) {
+    console.warn("Failed to stop ringtone:", err);
+  }
+}
+
+// ✅ Override stop function also
+function stopNotificationRingtone() {
+  forceStopEmployeeRingtone();
+}
+
+// ✅ Override mark seen function also
+function markNotificationAsSeen(rowKey) {
+  // ✅ Stop ringtone FIRST, even if rowKey is missing
+  forceStopEmployeeRingtone();
+
+  const seen = getSeenNotifications();
+
+  if (rowKey && !seen.includes(rowKey)) {
+    seen.push(rowKey);
+    saveSeenNotifications(seen);
+  }
+
+  // ✅ Also mark as already notified so auto-refresh will not ring again
+  if (
+    typeof getEmployeeNotifiedAssignmentKeys === "function" &&
+    typeof saveEmployeeNotifiedAssignmentKeys === "function"
+  ) {
+    const notified = getEmployeeNotifiedAssignmentKeys();
+
+    if (rowKey && !notified.includes(rowKey)) {
+      notified.push(rowKey);
+      saveEmployeeNotifiedAssignmentKeys(notified);
+    }
+  }
+
+  updateNotificationCount();
+  renderNotificationList();
+}
+
+// ✅ Extra safety: stop ringtone when clicking any notification item
+document.addEventListener("click", function (e) {
+  const item = e.target.closest(".notification-item");
+  if (!item) return;
+
+  forceStopEmployeeRingtone();
+
+  const notificationKey = item.dataset.notificationKey || "";
+
+  if (notificationKey) {
+    markNotificationAsSeen(notificationKey);
+  }
+}, true);
+
+
+
+/* ==================================================
+   FINAL EMPLOYEE NOTIFICATION FIX
+   - Seen notification will NOT ring again
+   - Clicking notification stops ringtone
+   - Fixes notification bell icon
+   Put this at the VERY BOTTOM of employee JS
+================================================== */
+
+const EMPLOYEE_SEEN_KEY = "BENRO_EMPLOYEE_SEEN_NOTIFICATIONS_V3";
+const EMPLOYEE_NOTIFIED_KEY = "BENRO_EMPLOYEE_ALREADY_RINGED_V3";
+
+let employeeRingtoneStoppedByUser = false;
+
+/* ==============================
+   BELL ICON FIX
+============================== */
+document.addEventListener("DOMContentLoaded", function () {
+  const bell = document.getElementById("notificationBell");
+
+  if (bell) {
+    bell.innerHTML = "🔔";
+    bell.type = "button";
+    bell.title = "Notifications";
+    bell.setAttribute("aria-label", "Notifications");
+  }
+});
+
+/* ==============================
+   STORAGE
+============================== */
+function getSeenNotifications() {
+  try {
+    return JSON.parse(localStorage.getItem(EMPLOYEE_SEEN_KEY) || "[]");
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveSeenNotifications(seenList) {
+  localStorage.setItem(
+    EMPLOYEE_SEEN_KEY,
+    JSON.stringify([...new Set(seenList)])
+  );
+}
+
+function getEmployeeNotifiedAssignmentKeys() {
+  try {
+    return JSON.parse(localStorage.getItem(EMPLOYEE_NOTIFIED_KEY) || "[]");
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveEmployeeNotifiedAssignmentKeys(keys) {
+  localStorage.setItem(
+    EMPLOYEE_NOTIFIED_KEY,
+    JSON.stringify([...new Set(keys)])
+  );
+}
+
+/* ==============================
+   NOTIFICATION KEY
+============================== */
+function getEmployeeAssignedDate(row) {
+  return (
+    row["DATE ASSIGNED BY DIVISION HEAD"] ||
+    row["DATE ASSIGNED TO EMPLOYEE"] ||
+    row["DATE ASSIGNED EMPLOYEE"] ||
+    row["DATE ASSIGNED"] ||
+    row["ASSIGNED DATE"] ||
+    ""
+  );
+}
+
+function getNotificationKey(row) {
+  const serial = String(row["SERIAL NUMBER"] || "").trim();
+  const employee = normalizeText(localStorage.getItem("benroEmployee") || "");
+  const assignedDate = String(getEmployeeAssignedDate(row) || "").trim();
+  const personnel = normalizeText(row["PERSONNEL IN-CHARGE"] || "");
+
+  if (!serial) return "";
+
+  return `${serial}|${employee}|${assignedDate || personnel}`;
+}
+
+/* ==============================
+   RINGTONE CONTROL
+============================== */
+function forceStopEmployeeRingtone() {
+  try {
+    employeeRingtoneStoppedByUser = true;
+
+    if (typeof ringtoneTimer !== "undefined" && ringtoneTimer) {
+      clearInterval(ringtoneTimer);
+      ringtoneTimer = null;
+    }
+
+    if (typeof notificationAudio !== "undefined" && notificationAudio) {
+      notificationAudio.pause();
+      notificationAudio.currentTime = 0;
+    }
+
+    if (typeof employeePendingRingtone !== "undefined") {
+      employeePendingRingtone = false;
+    }
+
+    console.log("🔕 Ringtone stopped and notification marked seen.");
+  } catch (err) {
+    console.warn("Failed to stop ringtone:", err);
+  }
+}
+
+function stopNotificationRingtone() {
+  forceStopEmployeeRingtone();
+}
+
+function startNotificationRingtone() {
+  if (employeeRingtoneStoppedByUser) return;
+  if (ringtoneTimer) return;
+
+  if (typeof notificationAudio === "undefined" || !notificationAudio) return;
+
+  notificationAudio.currentTime = 0;
+
+  notificationAudio.play().catch(err => {
+    console.log("Audio blocked:", err);
+  });
+
+  ringtoneTimer = setInterval(() => {
+    if (employeeRingtoneStoppedByUser) {
+      forceStopEmployeeRingtone();
+      return;
+    }
+
+    notificationAudio.currentTime = 0;
+
+    notificationAudio.play().catch(err => {
+      console.log("Audio blocked:", err);
+    });
+  }, 5000);
+}
+
+/* ==============================
+   MARK AS SEEN
+============================== */
+function markNotificationAsSeen(rowKey) {
+  forceStopEmployeeRingtone();
+
+  if (!rowKey) return;
+
+  const seen = getSeenNotifications();
+  const notified = getEmployeeNotifiedAssignmentKeys();
+
+  if (!seen.includes(rowKey)) {
+    seen.push(rowKey);
+  }
+
+  if (!notified.includes(rowKey)) {
+    notified.push(rowKey);
+  }
+
+  saveSeenNotifications(seen);
+  saveEmployeeNotifiedAssignmentKeys(notified);
+
+  updateNotificationCount();
+  renderNotificationList();
+}
+
+/* ==============================
+   UPDATE NOTIFICATION BELL
+============================== */
+function updateNotificationBell(rows) {
+  currentNotificationRows = Array.isArray(rows) ? rows : [];
+
+  const seen = getSeenNotifications();
+  const notified = getEmployeeNotifiedAssignmentKeys();
+
+  const currentKeys = currentNotificationRows
+    .map(row => getNotificationKey(row))
+    .filter(Boolean);
+
+  const newKeys = currentKeys.filter(key =>
+    !seen.includes(key) &&
+    !notified.includes(key)
+  );
+
+  if (newKeys.length > 0) {
+    employeeRingtoneStoppedByUser = false;
+
+    saveEmployeeNotifiedAssignmentKeys([
+      ...notified,
+      ...newKeys
+    ]);
+
+    startNotificationRingtone();
+  }
+
+  renderNotificationList();
+  updateNotificationCount();
+}
+
+/* ==============================
+   COUNT
+============================== */
+function updateNotificationCount() {
+  const countBox = document.getElementById("notificationCount");
+  if (!countBox) return;
+
+  const seen = getSeenNotifications();
+
+  const unreadRows = currentNotificationRows.filter(row => {
+    const key = getNotificationKey(row);
+    return key && !seen.includes(key);
+  });
+
+  const count = unreadRows.length;
+
+  countBox.textContent = count > 99 ? "99+" : count;
+
+  if (count > 0) {
+    countBox.classList.add("show");
+  } else {
+    countBox.classList.remove("show");
+  }
+}
+
+/* ==============================
+   CLICK NOTIFICATION ITEM
+============================== */
+document.addEventListener("click", function (e) {
+  const item = e.target.closest(".notification-item");
+
+  if (!item) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  const notificationKey = item.dataset.notificationKey || "";
+  const rowIndex = item.dataset.rowIndex || "";
+
+  markNotificationAsSeen(notificationKey);
+
+  document.getElementById("notificationPanel")?.classList.remove("show");
+
+  const tableRow = document.querySelector(
+    `#dataGrid tbody tr[data-row-index="${rowIndex}"]`
+  );
+
+  if (tableRow) {
+    tableRow.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+
+    tableRow.click();
+  } else if (typeof showRowDataBelowFromButton === "function") {
+    showRowDataBelowFromButton(rowIndex);
+  }
+}, true);
+
+/* ==============================
+   BELL TOGGLE
+============================== */
+function setupNotificationBell() {
+  const bell = document.getElementById("notificationBell");
+  const panel = document.getElementById("notificationPanel");
+
+  if (!bell || !panel) {
+    console.warn("Notification bell or panel not found.");
+    return;
+  }
+
+  bell.innerHTML = "🔔";
+  bell.type = "button";
+  bell.title = "Notifications";
+
+  if (bell.dataset.ready === "true") return;
+  bell.dataset.ready = "true";
+
+  bell.addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const sidebar = document.getElementById("sidebar");
+    const mainContent = document.querySelector(".main-content");
+
+    if (sidebar) sidebar.classList.remove("show");
+    if (mainContent) mainContent.classList.remove("shift");
+
+    panel.classList.toggle("show");
+
+    renderNotificationList();
+    updateNotificationCount();
+  });
+
+  panel.addEventListener("click", function (e) {
+    e.stopPropagation();
+  });
+
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest("#notificationWrapper")) {
+      panel.classList.remove("show");
+    }
+  });
+}
 
