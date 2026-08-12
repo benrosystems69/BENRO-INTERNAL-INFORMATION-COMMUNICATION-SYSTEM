@@ -111,19 +111,23 @@ function clearForm() {
 
 
 // ===== SEND TO GOOGLE SHEETS =====
+// ===== SEND TO GOOGLE SHEETS =====
 async function sendRowToGoogleSheets(d) {
+
   const filesBase64 = await Promise.all(
-    (d.files || []).map(file => new Promise((resolve, reject) => {
-      const reader = new FileReader();
+    (d.files || []).map(file =>
+      new Promise((resolve, reject) => {
+        const reader = new FileReader();
 
-      reader.onload = () => resolve({
-        name: file.name,
-        base64: reader.result
-      });
+        reader.onload = () => resolve({
+          name: file.name,
+          base64: reader.result
+        });
 
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    }))
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      })
+    )
   );
 
   const res = await fetch(googleSheetsUrl, {
@@ -134,15 +138,47 @@ async function sendRowToGoogleSheets(d) {
     })
   });
 
-  const result = await res.json();
+  // Read response as TEXT first
+  const responseText = await res.text();
 
-  if (result.status !== "success") {
-    throw new Error(result.message || "Failed to save data.");
+  console.log("RAW SAVE RESPONSE:", responseText);
+
+  if (!res.ok) {
+    throw new Error(
+      `Server error ${res.status}: ${responseText || res.statusText}`
+    );
   }
 
-  d.no = result.number;
-  d.serial = result.serial;
-  d.fileUrls = result.fileUrls || [];
+  // Make sure Apps Script actually returned something
+  if (!responseText || responseText.trim() === "") {
+    throw new Error(
+      "Data may have been saved, but Apps Script returned an empty response."
+    );
+  }
+
+  let result;
+
+  try {
+    result = JSON.parse(responseText);
+  } catch (err) {
+    console.error("Invalid Apps Script response:", responseText);
+
+    throw new Error(
+      "Data may have been saved, but the server returned an invalid response."
+    );
+  }
+
+  if (result.status !== "success") {
+    throw new Error(
+      result.message || "Failed to save data."
+    );
+  }
+
+  d.no = result.number || "";
+  d.serial = result.serial || d.serial || "";
+  d.fileUrls = Array.isArray(result.fileUrls)
+    ? result.fileUrls
+    : [];
 
   return d;
 }
@@ -506,6 +542,7 @@ function populateRow(row, d) {
 
 
 // ===== SAVE BUTTON =====
+// ===== SAVE BUTTON =====
 saveBtn.addEventListener("click", async (e) => {
   e.preventDefault();
 
@@ -518,45 +555,147 @@ saveBtn.addEventListener("click", async (e) => {
 
   saveBtn.disabled = true;
 
-  try {
-    let savedData;
+  let savedData = null;
+  let savedToSpreadsheet = false;
 
+  try {
+
+    // ==========================================
+    // UPDATE EXISTING DATA
+    // ==========================================
     if (currentEditingRow) {
+
       data.action = "UPDATE";
-      data.serial = currentEditingRow.cells[0].textContent.trim();
+      data.serial =
+        currentEditingRow.cells[0].textContent.trim();
 
       saveBtn.textContent = "UPDATING...";
-      showSavingModal("saving", "Updating Data...");
+
+      showSavingModal(
+        "saving",
+        "Updating Data..."
+      );
 
       savedData = await sendRowToGoogleSheets(data);
 
-      updateRow(currentEditingRow, savedData);
+      // Server successfully saved it
+      savedToSpreadsheet = true;
 
-      showSavingModal("success", "Data Updated Successfully");
+      try {
+        updateRow(currentEditingRow, savedData);
 
-    } else {
+        saveTableToLocalStorage();
+
+        currentEditingRow = null;
+
+        clearForm();
+
+        showSavingModal(
+          "success",
+          "Data Updated Successfully"
+        );
+
+      } catch (uiError) {
+
+        console.error(
+          "Data was updated but UI failed:",
+          uiError
+        );
+
+        showSavingModal(
+          "success",
+          "Data Updated Successfully. Refreshing records..."
+        );
+
+        await loadDataFromGoogleSheets(false);
+      }
+
+    }
+
+    // ==========================================
+    // CREATE NEW DATA
+    // ==========================================
+    else {
+
       data.action = "CREATE";
 
       saveBtn.textContent = "SAVING...";
-      showSavingModal("saving", "Saving Data...");
+
+      showSavingModal(
+        "saving",
+        "Saving Data..."
+      );
 
       savedData = await sendRowToGoogleSheets(data);
 
-      addRowToTable(savedData);
+      // Spreadsheet save is already successful here
+      savedToSpreadsheet = true;
 
-      showSavingModal("success", "Data Saved Successfully");
+      try {
+
+        // Remove "No records found" row if present
+        const noRecordsRow =
+          dataGrid.querySelector("td[colspan]");
+
+        if (noRecordsRow) {
+          dataGrid.innerHTML = "";
+        }
+
+        addRowToTable(savedData);
+
+        saveTableToLocalStorage();
+
+        clearForm();
+
+        showSavingModal(
+          "success",
+          "Data Saved Successfully"
+        );
+
+      } catch (uiError) {
+
+        console.error(
+          "Saved to spreadsheet but UI failed:",
+          uiError
+        );
+
+        // Do NOT say Error Saving Data because
+        // the spreadsheet already saved it.
+        showSavingModal(
+          "success",
+          "Data Saved Successfully. Refreshing records..."
+        );
+
+        await loadDataFromGoogleSheets(false);
+      }
     }
 
     currentEditingRow = null;
-    saveTableToLocalStorage();
-    clearForm();
 
   } catch (err) {
-    console.error(err);
-    showSavingModal("error", "Error Saving Data: " + err.message);
+
+    console.error("SAVE ERROR:", err);
+
+    if (savedToSpreadsheet) {
+
+      showSavingModal(
+        "success",
+        "Data was saved. Refresh the page to update the display."
+      );
+
+    } else {
+
+      showSavingModal(
+        "error",
+        "Error Saving Data: " + err.message
+      );
+    }
+
   } finally {
+
     saveBtn.disabled = false;
     saveBtn.textContent = "SAVE DATA";
+
   }
 });
 
