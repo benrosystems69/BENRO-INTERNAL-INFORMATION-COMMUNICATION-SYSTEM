@@ -232,27 +232,101 @@ body {
 </div>
 
 
+<!-- PERSONNEL IN-CHARGE -->
+<div class="floating-input-group132">
 
-<div class="floating-input-group13">
-  <input
-    type="text"
-    id="division"
-    name="division"
-    list="divisionlist"
-    placeholder=" "
-    required
-    autocomplete="off"
-  />
-  <label for="division">DIVISION</label>
+  <div class="multi-select-wrapper" id="personnelWrapper">
 
-  <datalist id="divisionlist">
-    <option value="AMD - ADMINISTRATIVE MANAGEMENT DIVISION"></option>
-    <option value="NRMD - NATURAL RESOURCES MANAGEMENT DIVISION "></option>
-    <option value="MGMD - MINES & GEOSCIENCES MANAGEMENT DIVISION"></option>
-    <option value="EMDD - ENVIRONMENTAL MANAGEMENT AND DEVELOPMENT DIVISION"></option>
-    <option value="ERDPPMD - ECOSYSTEM RESEARCH AND DEVELOPMENT PLANNING AND POLICY MANAGEMENT DIVISION"></option>
-  </datalist>
+    <div class="multi-select-box"
+         id="personnelSelectBox"
+         tabindex="0"
+         role="button"
+         aria-expanded="false">
+
+      <div class="multi-select-display" id="personnelDisplay">
+        <span class="placeholder-text">
+          PERSONNEL IN-CHARGE
+        </span>
+      </div>
+
+      <div class="multi-select-arrow">▼</div>
+    </div>
+
+    <div class="multi-select-dropdown" id="personnelDropdown">
+
+      <input
+        type="text"
+        id="personnelSearch"
+        class="multi-search"
+        placeholder="Search employee..."
+        autocomplete="off"
+      />
+
+      <div id="personnelOptions"></div>
+
+    </div>
+
+    <input type="hidden" id="PERSONNEL" name="PERSONNEL">
+
+  </div>
+
 </div>
+
+
+
+
+<!-- DIVISION MULTIPLE SELECTION -->
+<div class="floating-input-group13">
+
+  <div class="division-multi-wrapper" id="divisionWrapper">
+
+    <div class="division-multi-box"
+         id="divisionSelectBox"
+         tabindex="0"
+         role="button"
+         aria-expanded="false">
+
+      <div class="division-multi-display" id="divisionDisplay">
+        <span class="division-placeholder">DIVISION</span>
+      </div>
+
+      <span class="division-arrow">▼</span>
+    </div>
+
+    <div class="division-multi-dropdown" id="divisionDropdown">
+
+      <input
+        type="text"
+        id="divisionSearch"
+        placeholder="Search division..."
+        autocomplete="off"
+      />
+
+      <div id="divisionOptions"></div>
+
+      <div class="division-toolbar">
+        <span id="divisionCount">0 selected</span>
+
+        <div class="division-toolbar-buttons">
+          <button type="button" id="divisionSelectAll">
+            SELECT ALL
+          </button>
+
+          <button type="button" id="divisionClearAll">
+            CLEAR ALL
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Keep original ID for existing JavaScript -->
+    <input type="hidden" id="division" name="division">
+
+  </div>
+
+</div>
+
 
 
 <div class="datereleased">
@@ -355,6 +429,7 @@ body {
           <th>DATE ROUTED TO PENRO</th>
           <th>DATE RELEASED PENRO</th>
           <th>DIVISION</th>
+          <th>PERSONNEL IN-CHARGE</th>
           <th>DATE RELEASED</th>
           <th>RECEIVED BY</th>
           <th>FILE</th>
@@ -397,6 +472,8 @@ body {
 </div>
 
 <script src="BENRO-IICTS.js"></script> 
+<script src="BENRO-EMPLOYEE-LIST.js"></script>
+<script src="BENRO-DIVISION-LIST.js"></script>
 
 
 </body>
