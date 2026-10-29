@@ -1,5 +1,5 @@
 const googleSheetsUrl =
-  "https://script.google.com/macros/s/AKfycbwuPxSN-bsYhgAM5UmvmFnImZlLC-EqpWKr5vpjGSb4pRI16vDPaAwHr0FtzIs-qgYP/exec";
+  "https://script.google.com/macros/s/AKfycby1Rxez353DMdTgEUaOAudcThK7Yu6o8Mb1UH8RdRHT2pHynhFcasdNDtwthQJvPhPH/exec";
 
 const personnelUrl =
   "https://script.google.com/macros/s/AKfycbzAxaoxDBHLfN9Dqu6FNzW_p7XNfbZSdnLtfAJmC53YEGr1lfgW0kGrHQLizY3Eg99j/exec";
@@ -1583,7 +1583,7 @@ document.getElementById("logoutBtn").addEventListener("click", function (e) {
     localStorage.removeItem("benroProfile");
     localStorage.removeItem("instructionStore");
 
-    window.location.href = "index.html";
+    window.location.href = "BENRO-IICTS_LOGIN.html";
   }, 900);
 });
 
