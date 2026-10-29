@@ -1,5 +1,5 @@
 const googleSheetsUrl =
-  "https://script.google.com/macros/s/AKfycbwDRfkY0lj5xY4BxKYHkrcSBxo4HdLQ2TAX3WZpTxJjk1gZCbVpFTQ2JWmlx2pKRkVZ/exec";
+  "https://script.google.com/macros/s/AKfycbxoEbMCSZDHLeTr-NP5Kds6iVZdHc33ORjoKsIJyyMwWqz-dy40IG8b0varzvA5A45T/exec";
 
 const personnelUrl =
   "https://script.google.com/macros/s/AKfycbzAxaoxDBHLfN9Dqu6FNzW_p7XNfbZSdnLtfAJmC53YEGr1lfgW0kGrHQLizY3Eg99j/exec";
@@ -820,7 +820,7 @@ function openPersonnelInstructionFromTable(event) {
 }
 
 
-function removePersonnelFromTable(event) {
+async function removePersonnelFromTable(event) {
   event.preventDefault();
   event.stopPropagation();
 
@@ -828,20 +828,118 @@ function removePersonnelFromTable(event) {
   const rowIndex = btn.dataset.rowIndex;
   const personnel = btn.dataset.personnel;
 
-  // ✅ This makes row data appear below
-  showRowDataBelowFromButton(rowIndex);
+  const rowData = allRows.find(
+    row => String(row.__rowIndex) === String(rowIndex)
+  );
 
-  // ✅ Then remove if confirmed
-  if (!confirm(`Remove ${personnel}?`)) return;
+  if (!rowData) {
+    alert("Record not found. Please refresh and try again.");
+    return;
+  }
 
-  selectedPersonnel = selectedPersonnel.filter(p => p !== personnel);
+  const serialNumber = String(
+    rowData["SERIAL NUMBER"] || ""
+  ).trim();
 
-  delete instructionStore[personnel];
-  saveInstructionsToLocal();
+  if (!serialNumber || serialNumber === "-") {
+    alert("Serial number not found.");
+    return;
+  }
 
-  personnelHidden.value = selectedPersonnel.join(" | ");
-  updatePersonnelDisplay();
-  renderPersonnelOptions(allPersonnelNames);
+  if (!confirm(`Remove ${personnel} from PERSONNEL IN-CHARGE?`)) {
+    return;
+  }
+
+  // Get the existing personnel from this record
+  const originalPersonnel = String(
+    rowData["PERSONNEL IN-CHARGE"] || ""
+  );
+
+  let personnelNames = originalPersonnel
+    .split(/\s*\|\s*|\n|;/)
+    .map(name => name.trim())
+    .filter(name => name && name !== "-");
+
+  // Support legacy personnel strings without separators
+  if (
+    personnelNames.length === 1 &&
+    !originalPersonnel.includes("|") &&
+    allPersonnelNames.length
+  ) {
+    const matches = allPersonnelNames.filter(name =>
+      originalPersonnel.toUpperCase().includes(
+        String(name).trim().toUpperCase()
+      )
+    );
+
+    if (matches.length) {
+      personnelNames = matches;
+    }
+  }
+
+  const remainingPersonnel = personnelNames.filter(
+    name =>
+      name.toUpperCase() !==
+      personnel.trim().toUpperCase()
+  );
+
+  if (remainingPersonnel.length === personnelNames.length) {
+    alert("Personnel name not found in this record.");
+    return;
+  }
+
+  const updatedPersonnel = remainingPersonnel.join(" | ");
+
+  btn.disabled = true;
+
+  try {
+    const response = await fetch(googleSheetsUrl, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "UPDATE_PERSONNEL",
+        serialNumber: serialNumber,
+        "PERSONNEL IN-CHARGE": updatedPersonnel,
+        updatedBy:
+          localStorage.getItem("benroEmployee") ||
+          localStorage.getItem("benroUsername") ||
+          "UNKNOWN USER"
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error("HTTP " + response.status);
+    }
+
+    const result = await response.json();
+
+    if (result.success !== true) {
+      throw new Error(result.message || "Delete failed.");
+    }
+
+    // Update local data only after successful saving
+    rowData["PERSONNEL IN-CHARGE"] = updatedPersonnel;
+
+    // Remove instruction for deleted personnel
+    delete instructionStore[personnel];
+    saveInstructionsToLocal();
+
+    // Refresh the selected panel
+    showRowDataBelowFromButton(rowIndex);
+    updatePersonnelDisplay();
+    renderPersonnelOptions(allPersonnelNames);
+
+    // Refresh datagrid from Google Sheets
+    await loadDataFromSheet(false);
+
+    alert("Personnel removed successfully.");
+
+  } catch (error) {
+    console.error("PERSONNEL DELETE ERROR:", error);
+    alert("Unable to delete personnel:\n" + error.message);
+
+  } finally {
+    btn.disabled = false;
+  }
 }
 /* ==============================
    OPEN FILE
