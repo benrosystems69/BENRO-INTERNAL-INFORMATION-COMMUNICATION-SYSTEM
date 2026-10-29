@@ -2208,8 +2208,21 @@ function checkNewDataAndRing(visibleReleasedRows) {
    Same style as Division / Employee notification
 ================================================== */
 
-const PENRO_NOTIFICATION_READ_KEY = "penroReadNotifications";
-const PENRO_NOTIFICATION_KNOWN_KEY = "penroKnownNotifications";
+// Account-specific browser history: do not reset on logout.
+function getPenroNotificationAccountKey() {
+  const user = normalizeText(
+    localStorage.getItem("benroUsername") ||
+    localStorage.getItem("benroEmployee") || ""
+  );
+  const division = normalizeText(localStorage.getItem("benroDivision") || "");
+  const role = normalizeText(localStorage.getItem("benroRole") || "");
+  return encodeURIComponent([user, division, role].join("|"));
+}
+
+const PENRO_NOTIFICATION_READ_KEY =
+  "penroReadNotifications_v2_" + getPenroNotificationAccountKey();
+const PENRO_NOTIFICATION_KNOWN_KEY =
+  "penroKnownNotifications_v2_" + getPenroNotificationAccountKey();
 
 let penroNotificationRows = [];
 
@@ -2297,26 +2310,33 @@ function updatePenroNotifications(rows) {
     .map(row => getPenroNotificationId(row))
     .filter(id => id !== "");
 
-  const firstCheck =
-    sessionStorage.getItem(PENRO_NOTIFICATION_KNOWN_KEY) === null;
+  // Preserve notification history between logout, login, and page refresh.
+  // On the first use of this version for an account, existing records
+  // are taken as the baseline (read); only later arrivals become unread.
+  const savedKnown = localStorage.getItem(PENRO_NOTIFICATION_KNOWN_KEY);
+  let knownIds = [];
 
-  let readIds = getPenroReadNotificationIds();
-
-  /*
-    First load:
-    Existing records will not all become green.
-    Only new records after page is open will become unread/green.
-  */
-  if (firstCheck && localStorage.getItem(PENRO_NOTIFICATION_READ_KEY) === null) {
-    readIds = currentIds;
-    savePenroReadNotificationIds(readIds);
+  if (savedKnown !== null) {
+    try {
+      const parsed = JSON.parse(savedKnown);
+      knownIds = Array.isArray(parsed) ? parsed : [];
+    } catch (err) {
+      knownIds = [];
+    }
+  } else {
+    savePenroReadNotificationIds([
+      ...getPenroReadNotificationIds(),
+      ...currentIds
+    ]);
   }
 
-  sessionStorage.setItem(
+  // Never forget previously encountered IDs when rows are filtered or removed.
+  localStorage.setItem(
     PENRO_NOTIFICATION_KNOWN_KEY,
-    JSON.stringify(currentIds)
+    JSON.stringify([...new Set([...knownIds, ...currentIds])])
   );
 
+  // The read list is only updated on a notification click (except baseline).
   renderPenroNotificationList();
 }
 
