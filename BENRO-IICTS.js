@@ -1,6 +1,7 @@
 // ===== CONFIG =====
 //const googleSheetsUrl = "https://script.google.com/macros/s/AKfycbwVJ7-nwkL7GMzS116dRJiI0bPfMV1w6cL-avV3dIBjLt3JnGzLQgKFr2eZEVlaf-uB/exec";
-const googleSheetsUrl = "https://script.google.com/macros/s/AKfycbxapoa5OENbY7yjjqXDfuP80NWDDd_iWpRNC-UB82ZP0l-q6HoG891jmjdZPfjQazc/exec";
+const googleSheetsUrl = "https://script.google.com/macros/s/AKfycbxZD9i14j6wMqT8K9CjSnbThle3l_ZlkaVVtCsynhCTT8MbTJN-p66-GMZJKMfsLHA/exec";
+const employeeListUrl = "https://script.google.com/macros/s/AKfycbz45A4WQebeP0l1HXGmb-372xqnJI_PzSAsnBrdPT__CEolhzerDVDrM5gTRNmSpe-c/exec";
 const cancelBtn = document.querySelector(".btn.cancel");
 const saveBtn = document.getElementById("saveBtn");
 const toast = document.getElementById("toast");
@@ -61,7 +62,7 @@ function showLogoutLoader() {
 function collectFormData() {
   const fileInput = document.getElementById("fileInput");
   const files = Array.from(fileInput.files);
-
+  
   return {
     serial: null,
     client: document.getElementById("client").value,
@@ -74,6 +75,7 @@ function collectFormData() {
     division: document.getElementById("division").value,
     dateReleased: document.getElementById("dateReleased").value,
     receivedBy: document.getElementById("personnel").value,
+    personnelInCharge: document.getElementById("PERSONNEL").value,
     files: files,
     fileUrls: []
   };
@@ -107,78 +109,75 @@ function notifyRequiredFields() {
 function clearForm() {
   document.querySelectorAll("input").forEach(i => (i.value = ""));
   document.getElementById("fileInput").value = "";
+  window.setPersonnelSelection?.("");
+  window.clearDivisionSelection?.();
 }
 
 
 // ===== SEND TO GOOGLE SHEETS =====
-// ===== SEND TO GOOGLE SHEETS =====
 async function sendRowToGoogleSheets(d) {
-
   const filesBase64 = await Promise.all(
-    (d.files || []).map(file =>
-      new Promise((resolve, reject) => {
-        const reader = new FileReader();
+    (d.files || []).map(file => new Promise((resolve, reject) => {
+      const reader = new FileReader();
 
-        reader.onload = () => resolve({
-          name: file.name,
-          base64: reader.result
-        });
+      reader.onload = () => resolve({
+        name: file.name,
+        base64: reader.result
+      });
 
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      })
-    )
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    }))
   );
+
+  const payload = {
+    ...d,
+    files: filesBase64,
+
+    // ✅ Make sure division is always included
+    division: d.division || document.getElementById("division").value.trim(),
+    newDivision: d.newDivision || document.getElementById("division").value.trim(),
+
+    // ✅ Used to find the old row during update
+    serial: d.serial || "",
+    oldSerial: d.oldSerial || d.serial || "",
+
+    // ✅ Used to compare old vs new division
+    oldDivision: d.oldDivision || "",
+
+    // ✅ Signal for serial update
+    updateSerialDivision: d.updateSerialDivision === true
+  };
+
+  console.log("BIIC-TRACKER SEND PAYLOAD:", payload);
 
   const res = await fetch(googleSheetsUrl, {
     method: "POST",
-    body: JSON.stringify({
-      ...d,
-      files: filesBase64
-    })
+    body: JSON.stringify(payload)
   });
 
-  // Read response as TEXT first
-  const responseText = await res.text();
-
-  console.log("RAW SAVE RESPONSE:", responseText);
-
-  if (!res.ok) {
-    throw new Error(
-      `Server error ${res.status}: ${responseText || res.statusText}`
-    );
-  }
-
-  // Make sure Apps Script actually returned something
-  if (!responseText || responseText.trim() === "") {
-    throw new Error(
-      "Data may have been saved, but Apps Script returned an empty response."
-    );
-  }
+  const text = await res.text();
+  console.log("BIIC-TRACKER SAVE / UPDATE RESPONSE:", text);
 
   let result;
 
   try {
-    result = JSON.parse(responseText);
+    result = JSON.parse(text);
   } catch (err) {
-    console.error("Invalid Apps Script response:", responseText);
-
-    throw new Error(
-      "Data may have been saved, but the server returned an invalid response."
-    );
+    throw new Error("Apps Script did not return valid JSON:\n" + text);
   }
 
   if (result.status !== "success") {
-    throw new Error(
-      result.message || "Failed to save data."
-    );
+    throw new Error(result.message || "Failed to save data.");
   }
 
-  d.no = result.number || "";
-  d.serial = result.serial || d.serial || "";
-  d.fileUrls = Array.isArray(result.fileUrls)
-    ? result.fileUrls
-    : [];
+  d.no = result.number || d.no;
+
+  // ✅ Important: use new serial from Apps Script if available
+  d.serial = result.serial || d.serial;
+
+  d.division = result.division || d.division || payload.division;
+  d.fileUrls = result.fileUrls || d.fileUrls || [];
 
   return d;
 }
@@ -282,6 +281,8 @@ function populateForm(d) {
   document.getElementById("dateReleased").value = formatForInputDateTime(d.dateReleased);
 
   document.getElementById("personnel").value = d.receivedBy || "";
+  window.setPersonnelSelection?.(d.personnelInCharge || "");
+  window.setDivisionSelection?.(d.division || "");
 }
 
 
@@ -343,14 +344,34 @@ function populateRow(row, d) {
     formatClearDateTime(d.dateRoutedPenro),
     formatClearDateTime(d.dateReleasedPenro),
     d.division,
+    d.personnelInCharge || "",
     formatClearDateTime(d.dateReleased),
     d.receivedBy
   ];
 
-  values.forEach(v => {
+  
+values.forEach((v, index) => {
     const cell = row.insertCell();
-    cell.textContent = v || "";
-  });
+
+    // DIVISION = index 8
+    // PERSONNEL IN-CHARGE = index 9
+
+    if (index === 8 || index === 9) {
+        cell.textContent = String(v || "")
+            .split(/\s*\|\s*|\r?\n/)
+            .map(item => item.trim())
+            .filter(Boolean)
+            .join("\n");
+
+        cell.style.whiteSpace = "pre-line";
+        cell.style.verticalAlign = "top";
+        cell.style.lineHeight = "1.7";
+        cell.style.minWidth = "220px";
+    } else {
+        cell.textContent = v || "";
+    }
+});
+
 
   row.dataset.fileUrls = JSON.stringify(d.fileUrls);
 
@@ -542,7 +563,6 @@ function populateRow(row, d) {
 
 
 // ===== SAVE BUTTON =====
-// ===== SAVE BUTTON =====
 saveBtn.addEventListener("click", async (e) => {
   e.preventDefault();
 
@@ -555,147 +575,71 @@ saveBtn.addEventListener("click", async (e) => {
 
   saveBtn.disabled = true;
 
-  let savedData = null;
-  let savedToSpreadsheet = false;
-
   try {
+    let savedData;
 
-    // ==========================================
-    // UPDATE EXISTING DATA
-    // ==========================================
-    if (currentEditingRow) {
+   if (currentEditingRow) {
+  const oldRecord = currentEditingRow.dataset.record
+    ? JSON.parse(currentEditingRow.dataset.record)
+    : {};
 
-      data.action = "UPDATE";
-      data.serial =
-        currentEditingRow.cells[0].textContent.trim();
+  const oldSerial = currentEditingRow.cells[0].textContent.trim();
+  const oldDivision = oldRecord.division || "";
+  const newDivision = document.getElementById("division").value.trim();
 
-      saveBtn.textContent = "UPDATING...";
+  data.action = "UPDATE";
 
-      showSavingModal(
-        "saving",
-        "Updating Data..."
-      );
+  // ✅ This old serial is used to FIND the existing row
+  data.serial = oldSerial;
+  data.oldSerial = oldSerial;
 
-      savedData = await sendRowToGoogleSheets(data);
+  // ✅ These tell Apps Script that DIVISION changed
+  data.oldDivision = oldDivision;
+  data.division = newDivision;
+  data.newDivision = newDivision;
 
-      // Server successfully saved it
-      savedToSpreadsheet = true;
+  // ✅ Signal: update serial if division changed
+  data.updateSerialDivision = true;
 
-      try {
-        updateRow(currentEditingRow, savedData);
+  saveBtn.textContent = "UPDATING...";
+  showSavingModal("saving", "Updating Data...");
 
-        saveTableToLocalStorage();
+  savedData = await sendRowToGoogleSheets(data);
 
-        currentEditingRow = null;
+  // ✅ If Apps Script returns the updated serial, use it.
+  // ✅ Otherwise keep the old serial.
+  savedData.serial = savedData.serial || oldSerial;
+  savedData.division = savedData.division || newDivision;
 
-        clearForm();
+  updateRow(currentEditingRow, savedData);
 
-        showSavingModal(
-          "success",
-          "Data Updated Successfully"
-        );
+  showSavingModal("success", "Data Updated Successfully");
 
-      } catch (uiError) {
-
-        console.error(
-          "Data was updated but UI failed:",
-          uiError
-        );
-
-        showSavingModal(
-          "success",
-          "Data Updated Successfully. Refreshing records..."
-        );
-
-        await loadDataFromGoogleSheets(false);
-      }
-
-    }
-
-    // ==========================================
-    // CREATE NEW DATA
-    // ==========================================
-    else {
-
+} else  
+      
+      {
       data.action = "CREATE";
 
       saveBtn.textContent = "SAVING...";
-
-      showSavingModal(
-        "saving",
-        "Saving Data..."
-      );
+      showSavingModal("saving", "Saving Data...");
 
       savedData = await sendRowToGoogleSheets(data);
 
-      // Spreadsheet save is already successful here
-      savedToSpreadsheet = true;
+      addRowToTable(savedData);
 
-      try {
-
-        // Remove "No records found" row if present
-        const noRecordsRow =
-          dataGrid.querySelector("td[colspan]");
-
-        if (noRecordsRow) {
-          dataGrid.innerHTML = "";
-        }
-
-        addRowToTable(savedData);
-
-        saveTableToLocalStorage();
-
-        clearForm();
-
-        showSavingModal(
-          "success",
-          "Data Saved Successfully"
-        );
-
-      } catch (uiError) {
-
-        console.error(
-          "Saved to spreadsheet but UI failed:",
-          uiError
-        );
-
-        // Do NOT say Error Saving Data because
-        // the spreadsheet already saved it.
-        showSavingModal(
-          "success",
-          "Data Saved Successfully. Refreshing records..."
-        );
-
-        await loadDataFromGoogleSheets(false);
-      }
+      showSavingModal("success", "Data Saved Successfully");
     }
 
     currentEditingRow = null;
+    saveTableToLocalStorage();
+    clearForm();
 
   } catch (err) {
-
-    console.error("SAVE ERROR:", err);
-
-    if (savedToSpreadsheet) {
-
-      showSavingModal(
-        "success",
-        "Data was saved. Refresh the page to update the display."
-      );
-
-    } else {
-
-      showSavingModal(
-        "error",
-        "Error Saving Data: " + err.message
-      );
-    }
-
+    console.error(err);
+    showSavingModal("error", "Error Saving Data: " + err.message);
   } finally {
-
     saveBtn.disabled = false;
     saveBtn.textContent = "SAVE DATA";
-
   }
 });
 
@@ -794,7 +738,7 @@ async function loadDataFromGoogleSheets(showLoader = false) {
     if (rows.length === 0) {
       dataGrid.innerHTML = `
         <tr>
-          <td colspan="13" style="text-align:center; padding:20px;">
+          <td colspan="14" style="text-align:center; padding:20px;">
             No records found.
           </td>
         </tr>
@@ -830,7 +774,7 @@ function filterTable() {
 
   rows.forEach(row => {
     // ✅ Search data columns only, not action buttons
-    const cells = Array.from(row.cells).slice(0, 12);
+    const cells = Array.from(row.cells).slice(0, 13);
 
     const rowText = cells
       .map(cell => cell.textContent.toLowerCase())
@@ -1009,7 +953,7 @@ if (logoutBtn) {
       localStorage.removeItem("benroProfile");
       localStorage.removeItem("instructionStore");
 
-      window.location.href = "index.html";
+      window.location.href = "BENRO-IICTS_LOGIN.html";
     }, 900);
   });
 }
@@ -1022,4 +966,8 @@ if (logoutBtn) {
 document.addEventListener("DOMContentLoaded", function () {
   loadDataFromGoogleSheets(true);
 });
+
+
+
+
 
