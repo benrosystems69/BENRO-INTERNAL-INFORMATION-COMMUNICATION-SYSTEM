@@ -469,6 +469,52 @@ body {
   font-size: 11px;
   color: #4CAF50;
 }
+/*-------------------- PERSONNEL INCHARGE -------------------------*/
+
+
+.floating-input-group132 input[type="text"] {
+  width: 88%;
+  height: 27px;
+  font-size: 25px;
+  padding: 18px 12px 6px 12px;
+
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  background-color: white;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.floating-input-group132 input[type="text"]:focus {
+  border-color: #4CAF50;
+}
+
+.floating-input-group132 label {
+  position: absolute;
+  left: 12px;
+  top: 14px;
+  color: #888;
+  background-color: white;
+  padding: 0 4px;
+  font-size: 20px;
+  pointer-events: none;
+  transition: 0.2s ease all;
+}
+
+.floating-input-group132 input:focus + label,
+.floating-input-group132 input:not(:placeholder-shown) + label {
+  top: -8px;
+  font-size: 14px;
+  color: #4CAF50;
+}
+
+.floating-input-group132 {
+  position: relative; /* Needed for label positioning */
+  margin-left: 74.5%;  /* Adjust left margin */
+  margin-top:  -53px;   /* Optional spacing between fields */
+}
+
+
 
 
 
@@ -1551,3 +1597,2101 @@ body.sidebar-is-open #sidebarToggle {
     transform: rotate(360deg);
   }
 }
+
+
+/* SECOND ROW */
+.datereceivedod {
+    grid-column: span 3;
+}
+
+.dateroutedpenro {
+    grid-column: span 3;
+}
+
+.datereleasedfrompenro {
+    grid-column: span 3;
+}
+
+.floating-input-group132 {
+    grid-column: span 3;
+}
+
+/* THIRD ROW */
+.datereleased {
+    grid-column: span 3;
+}
+
+.floating-input-group14 {
+    grid-column: span 3;
+}
+
+.floating-input-group.file-group {
+    grid-column: span 3;
+}
+
+.floating-input-group13 {
+    grid-column: span 3;
+}
+
+
+@media (min-width: 1101px) {
+    .dataentry > .floating-input-group132 {
+        grid-row: 2;
+        grid-column: 10 / span 3;
+    }
+
+    .dataentry > .floating-input-group13 {
+        grid-row: 3;
+        grid-column: 10 / span 3;
+    }
+}
+
+
+
+
+/* ==========================================
+   BENRO-IICTS - BALANCED FORM GRID
+   ========================================== */
+
+.panel {
+    width: calc(100% - 60px);
+    max-width: none;
+    height: auto;
+    margin: 20px auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* MAIN GROUP BOX */
+.dataentry {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 22px 12px;
+
+    width: 100%;
+    height: auto;
+
+    margin: 0;
+    padding: 35px 25px 25px;
+
+    border: 2px solid #ccc;
+    border-radius: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 40px rgba(0,0,0,0.1);
+
+    box-sizing: border-box;
+    align-items: start;
+}
+
+/* RESET OLD FIELD POSITIONS */
+.dataentry > div {
+    position: relative;
+    width: auto;
+    min-width: 0;
+    height: auto;
+
+    margin: 0;
+    padding: 0;
+
+    box-sizing: border-box;
+}
+
+/* FIRST ROW */
+.floating-input-group1 {
+    grid-column: span 4;
+}
+
+.floating-input-group11 {
+    grid-column: span 2;
+}
+
+.floating-input-group12 {
+    grid-column: span 3;
+}
+
+.floating-input-group2 {
+    grid-column: span 3;
+}
+
+/* SECOND ROW */
+.datereceivedod {
+    grid-column: span 3;
+}
+
+.dateroutedpenro {
+    grid-column: span 3;
+}
+
+.datereleasedfrompenro {
+    grid-column: span 3;
+}
+
+.floating-input-group13 {
+    grid-column: span 3;
+}
+
+/* THIRD ROW */
+.datereleased {
+    grid-column: span 3;
+}
+
+.floating-input-group14 {
+    grid-column: span 3;
+}
+
+.floating-input-group.file-group {
+    grid-column: span 3;
+}
+
+.floating-input-group132 {
+    grid-column: span 3;
+}
+
+/* SAME WIDTH AND HEIGHT FOR ALL INPUTS */
+.dataentry input[type="text"],
+.dataentry input[type="datetime-local"],
+.dataentry input[type="file"] {
+    display: block;
+    width: 100%;
+    height: 56px;
+    min-width: 0;
+
+    margin: 0;
+    padding: 12px 16px;
+
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    color: #111;
+
+    border: 2px solid #d1d5db;
+    border-radius: 9px;
+    background-color: white;
+    outline: none;
+
+    box-sizing: border-box;
+    transition: border-color 0.25s ease,
+                box-shadow 0.25s ease;
+}
+
+/* CONSISTENT FLOATING LABELS */
+.dataentry > div > label {
+    position: absolute;
+    left: 12px;
+    top: 17px;
+
+    transform: none;
+    margin: 0;
+    padding: 0 5px;
+
+    background-color: #fff;
+    color: #888;
+
+    font-size: clamp(11px, 1vw, 18px);
+    line-height: 20px;
+
+    pointer-events: none;
+    transition: 0.2s ease all;
+}
+
+/* TEXT FIELD FLOATING LABELS */
+.dataentry input[type="text"]:focus + label,
+.dataentry input[type="text"]:not(:placeholder-shown) + label {
+    top: -9px;
+    left: 12px;
+    font-size: 12px;
+    color: #4CAF50;
+}
+
+/* DATE AND FILE LABELS ALWAYS ABOVE FIELD */
+.dataentry input[type="datetime-local"] + label,
+.dataentry input[type="file"] + label {
+    top: -18px;
+    left: 10px;
+    transform: none;
+    font-size: 12px;
+    color: #4CAF50;
+}
+
+/* INPUT FOCUS */
+.dataentry input:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 3px rgba(76,175,80,0.12);
+}
+
+/* PREVENT OLD HOVER MOVEMENT */
+.dataentry input:hover {
+    transform: none;
+}
+
+/* FILE LIST */
+.dataentry #fileList {
+    width: 100%;
+    margin: 8px 0 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* FORM BUTTONS */
+.form-buttons {
+    margin-top: 20px;
+    margin-right: 0;
+}
+
+/* SEARCH ALIGNMENT */
+.search-container {
+    margin-top: -45px;
+    margin-bottom: 18px;
+}
+
+/* TABLE ALIGNMENT */
+.datatable {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* TABLET */
+@media (max-width: 1100px) {
+    .dataentry {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 25px 15px;
+    }
+
+    .dataentry > div {
+        grid-column: span 1;
+    }
+}
+
+/* MOBILE */
+@media (max-width: 650px) {
+    .panel {
+        width: calc(100% - 24px);
+        padding: 12px;
+        margin: 12px auto;
+    }
+
+    .dataentry {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 30px 15px 20px;
+        gap: 27px;
+    }
+
+    .dataentry > div {
+        grid-column: 1 / -1;
+    }
+
+    .search-container {
+        margin-top: 15px;
+    }
+
+    .form-buttons {
+        margin-top: 18px;
+    }
+}
+
+
+/* ==========================================
+   BENRO-IICTS - THIRD ROW ARRANGEMENT
+   ========================================== */
+
+@media (min-width: 1101px) {
+
+    /* DIVISION - FIRST COLUMN */
+    .dataentry > .floating-input-group13 {
+        grid-row: 3;
+        grid-column: 1 / span 3;
+    }
+
+    /* DATE RELEASED - SECOND COLUMN */
+    .dataentry > .datereleased {
+        grid-row: 3;
+        grid-column: 4 / span 3;
+    }
+
+    /* UPLOAD FILES - THIRD COLUMN */
+    .dataentry > .floating-input-group.file-group {
+        grid-row: 3;
+        grid-column: 7 / span 3;
+    }
+
+    /* RECEIVED BY - FOURTH COLUMN */
+    .dataentry > .floating-input-group14 {
+        grid-row: 3;
+        grid-column: 10 / span 3;
+    }
+
+}
+
+
+
+@media (min-width: 1101px) {
+
+    /* RECEIVED BY - THIRD COLUMN */
+    .dataentry > .floating-input-group14 {
+        grid-row: 3;
+        grid-column: 7 / span 3;
+        margin: 0 !important;
+        width: 100% !important;
+    }
+
+    /* UPLOAD FILES - FOURTH COLUMN */
+    .dataentry > .floating-input-group.file-group {
+        grid-row: 3;
+        grid-column: 10 / span 3;
+        margin: 0 !important;
+        width: 100% !important;
+        min-width: 0;
+    }
+
+}
+
+
+
+/* ===== IMPROVED EMPLOYEE MULTI-SELECT ===== */
+
+.dataentry > .floating-input-group132 {
+    position: relative;
+    z-index: 20;
+    min-width: 0;
+}
+
+.multi-select-wrapper {
+    position: relative;
+    width: 100%;
+    font-family: Arial, sans-serif;
+}
+
+.multi-select-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    min-height: 56px;
+    padding: 8px 14px;
+    border: 2px solid #d1d5db;
+    border-radius: 9px;
+    background: #fff;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.multi-select-box:hover,
+.multi-select-wrapper.open .multi-select-box {
+    border-color: #4CAF50;
+}
+
+.multi-select-display {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    flex: 1;
+    min-width: 0;
+}
+
+.placeholder-text {
+    color: #888;
+    font-size: 16px;
+}
+
+.multi-select-arrow {
+    font-size: 12px;
+    color: #666;
+    flex-shrink: 0;
+}
+
+.personnel-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #e8f5e9;
+    color: #166534;
+    padding: 5px 8px;
+    border-radius: 5px;
+    font-size: 11px;
+    max-width: 100%;
+}
+
+.personnel-chip span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.personnel-chip button {
+    border: none;
+    background: transparent;
+    color: #166534;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.multi-select-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    width: 100%;
+    padding: 12px;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.18);
+    z-index: 10000;
+    box-sizing: border-box;
+}
+
+.multi-select-wrapper.open .multi-select-dropdown {
+    display: block;
+}
+
+.multi-search {
+    width: 100% !important;
+    height: 40px !important;
+    padding: 10px 12px !important;
+    font-size: 13px !important;
+    box-sizing: border-box;
+}
+
+.personnel-tools {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 10px 0;
+    font-size: 12px;
+}
+
+.personnel-tools button {
+    border: none;
+    background: #e8f5e9;
+    color: #166534;
+    border-radius: 5px;
+    padding: 6px 8px;
+    cursor: pointer;
+}
+
+#personnelOptions {
+    max-height: 230px;
+    overflow-y: auto;
+}
+
+.personnel-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 8px;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.personnel-option:hover {
+    background: #f0fdf4;
+}
+
+.personnel-option:has(input:checked) {
+    background: #e8f5e9;
+}
+
+.personnel-option input {
+    width: 16px;
+    height: 16px;
+    accent-color: #047500;
+    flex-shrink: 0;
+}
+
+.personnel-empty {
+    padding: 15px 8px;
+    text-align: center;
+    color: #777;
+    font-size: 13px;
+}
+
+@media (max-width: 650px) {
+    .multi-select-dropdown {
+        max-width: 100%;
+    }
+}
+
+
+
+/* ==========================================
+   BENRO-IICTS - EMPLOYEE LIST IMPROVEMENT
+   ========================================== */
+
+/* Main personnel dropdown container */
+.dataentry .floating-input-group132 {
+    position: relative;
+    z-index: 100;
+    min-width: 0;
+}
+
+.dataentry .multi-select-wrapper {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+}
+
+/* Main selection field */
+.dataentry .multi-select-box {
+    width: 100%;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 15px;
+    border: 2px solid #d1d5db;
+    border-radius: 10px;
+    background: white;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+/* Dropdown floating below the input */
+.dataentry .multi-select-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 7px);
+    left: 0;
+    width: 100%;
+    min-width: 280px;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.17);
+    box-sizing: border-box;
+    z-index: 9999;
+}
+
+/* Display dropdown only when open */
+.dataentry .multi-select-wrapper.open
+.multi-select-dropdown {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Employee search */
+.dataentry #personnelSearch {
+    display: block;
+    width: 100% !important;
+    height: 42px !important;
+    min-height: 42px;
+    margin: 0 !important;
+    padding: 10px 12px !important;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 13px !important;
+    box-sizing: border-box;
+    flex: none;
+}
+
+/* Employee list scrolling */
+.dataentry #personnelOptions {
+    width: 100%;
+    max-height: 240px;
+    min-height: 40px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 3px;
+    box-sizing: border-box;
+    order: 2;
+}
+
+/* Individual employee rows */
+.dataentry #personnelOptions .personnel-option {
+    display: flex !important;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+
+    width: 100%;
+    min-height: 42px;
+    height: auto;
+    padding: 9px 10px;
+    margin: 0;
+
+    border-radius: 7px;
+    cursor: pointer;
+    box-sizing: border-box;
+    white-space: normal;
+}
+
+/* Prevent checkbox from inheriting old CSS */
+.dataentry #personnelOptions
+.personnel-option input[type="checkbox"] {
+    appearance: auto;
+    display: block;
+    flex: 0 0 17px;
+    width: 17px !important;
+    height: 17px !important;
+    min-width: 17px;
+    min-height: 17px;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: static !important;
+    transform: none !important;
+    accent-color: #047500;
+}
+
+/* Correct text alignment and wrapping */
+.dataentry #personnelOptions
+.personnel-option span {
+    position: static !important;
+    display: block;
+    flex: 1;
+    min-width: 0;
+    height: auto;
+    margin: 0;
+    padding: 0;
+
+    font-size: 13px !important;
+    line-height: 1.5;
+    color: #333;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    transform: none !important;
+}
+
+/* Hover and selected effects */
+.dataentry #personnelOptions
+.personnel-option:hover {
+    background-color: #f0fdf4;
+}
+
+.dataentry #personnelOptions
+.personnel-option:has(input:checked) {
+    background-color: #e8f5e9;
+}
+
+/* Toolbar positioned above employee names */
+.dataentry .personnel-tools {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+    margin: 0;
+    padding: 5px 0;
+    order: 1;
+    box-sizing: border-box;
+    font-size: 12px;
+}
+
+.dataentry .personnel-tools > div {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Select All / Clear All buttons */
+.dataentry .personnel-tools button {
+    border: 1px solid #cde8d0;
+    background: #e8f5e9;
+    color: #166534;
+    padding: 7px 9px;
+    margin: 0;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.dataentry .personnel-tools button:hover {
+    background: #cdebd2;
+}
+
+/* Empty search message */
+.dataentry .personnel-empty {
+    padding: 15px 8px;
+    font-size: 13px;
+    text-align: center;
+    color: #777;
+}
+
+/* Search above, toolbar next, options below */
+.dataentry .multi-select-dropdown
+#personnelSearch {
+    order: 0;
+}
+
+@media (max-width: 650px) {
+    .dataentry .multi-select-dropdown {
+        min-width: 0;
+        width: 100%;
+    }
+}
+
+
+
+
+/* ============================================
+   BENRO-IICTS EMPLOYEE DROPDOWN FINAL FIX
+   ============================================ */
+
+/* MAIN WRAPPER */
+.dataentry .multi-select-wrapper {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+}
+
+/* DROPDOWN PANEL */
+.dataentry #personnelDropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+
+    width: 100%;
+    min-width: 300px;
+    max-width: 420px;
+
+    padding: 12px;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+
+    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+    box-sizing: border-box;
+    z-index: 99999;
+}
+
+/* OPEN DROPDOWN */
+.dataentry .multi-select-wrapper.open #personnelDropdown {
+    display: flex !important;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* SEARCH AREA - ALWAYS AT TOP */
+.dataentry .employee-search-area {
+    display: block;
+    position: relative;
+    width: 100%;
+    flex: 0 0 auto;
+}
+
+/* SEARCH TEXTBOX */
+.dataentry #personnelSearch {
+    display: block !important;
+    position: relative !important;
+
+    width: 100% !important;
+    height: 43px !important;
+    min-width: 0 !important;
+
+    margin: 0 !important;
+    padding: 10px 12px !important;
+
+    border: 1px solid #d1d5db !important;
+    border-radius: 8px !important;
+
+    background: #fff !important;
+    color: #222 !important;
+    font-size: 14px !important;
+
+    box-sizing: border-box !important;
+    outline: none;
+}
+
+.dataentry #personnelSearch:focus {
+    border-color: #4CAF50 !important;
+    box-shadow: 0 0 0 2px rgba(76,175,80,0.12);
+}
+
+/* SCROLL AREA */
+.dataentry .employee-scroll-area {
+    display: block;
+    width: 100%;
+    height: 220px;
+    max-height: 220px;
+    min-height: 0;
+
+    overflow-y: scroll !important;
+    overflow-x: hidden !important;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+/* EMPLOYEE OPTIONS */
+.dataentry #personnelOptions {
+    display: flex !important;
+    flex-direction: column !important;
+
+    width: 100%;
+    height: auto !important;
+    max-height: none !important;
+
+    margin: 0;
+    padding: 5px;
+    gap: 3px;
+
+    overflow: visible !important;
+    box-sizing: border-box;
+}
+
+/* EMPLOYEE ROWS */
+.dataentry #personnelOptions .personnel-option {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 10px;
+
+    width: 100%;
+    min-height: 42px;
+    height: auto !important;
+
+    padding: 9px 10px;
+    margin: 0 !important;
+
+    border-radius: 6px;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+/* CHECKBOX */
+.dataentry #personnelOptions
+.personnel-option input[type="checkbox"] {
+    position: static !important;
+    display: block !important;
+
+    width: 17px !important;
+    height: 17px !important;
+
+    flex: 0 0 17px;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    accent-color: #047500;
+}
+
+/* EMPLOYEE NAME */
+.dataentry #personnelOptions .personnel-option span {
+    position: static !important;
+
+    flex: 1;
+    min-width: 0;
+
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+    color: #333 !important;
+
+    white-space: normal !important;
+    overflow-wrap: break-word;
+}
+
+/* HOVER */
+.dataentry #personnelOptions .personnel-option:hover {
+    background: #f0fdf4;
+}
+
+/* SELECTED ROW */
+.dataentry #personnelOptions
+.personnel-option:has(input:checked) {
+    background: #e8f5e9;
+}
+
+/* TOOLBAR */
+.dataentry .personnel-tools {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+
+    margin: 0 !important;
+    padding: 5px 0;
+}
+
+/* SCROLLBAR */
+.dataentry .employee-scroll-area::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dataentry .employee-scroll-area::-webkit-scrollbar-thumb {
+    background: #b4c7b8;
+    border-radius: 10px;
+}
+
+.dataentry .employee-scroll-area::-webkit-scrollbar-track {
+    background: #f1f5f1;
+}
+
+
+.dataentry {
+    overflow: visible !important;
+}
+
+.dataentry > .floating-input-group132 {
+    z-index: 1000 !important;
+}
+
+
+
+
+/* =============================================
+   DIVISION HEAD PERSONNEL DROPDOWN - MAIN IICTS
+   ============================================= */
+
+.dataentry > .floating-input-group132 {
+    position: relative;
+    z-index: 1000 !important;
+    min-width: 0;
+}
+
+.dataentry .multi-select-wrapper {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+}
+
+.dataentry #personnelSelectBox {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 56px;
+    padding: 10px 14px;
+    background: white;
+    border: 2px solid #d1d5db;
+    border-radius: 9px;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.dataentry #personnelSelectBox:hover,
+.dataentry #personnelSelectBox:focus-visible {
+    border-color: #39b54a;
+    outline: none;
+}
+
+.dataentry #personnelDisplay {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+    flex: 1;
+    max-height: 95px;
+    overflow-y: auto;
+}
+
+.dataentry .multi-select-arrow {
+    font-size: 12px;
+    color: #666;
+    margin-left: 8px;
+}
+
+/* DROPDOWN */
+.dataentry #personnelDropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    bottom: auto;
+
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    max-height: none;
+
+    padding: 0;
+    background: white;
+    border: 2px solid #39b54a;
+    border-radius: 10px;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.15);
+    overflow: hidden;
+    box-sizing: border-box;
+    z-index: 99999;
+}
+
+.dataentry #personnelDropdown.show {
+    display: block !important;
+}
+
+/* SEARCH BOX */
+.dataentry #personnelSearch {
+    all: unset;
+    display: block !important;
+    position: static !important;
+
+    width: 100% !important;
+    height: 44px !important;
+    padding: 10px 12px !important;
+    margin: 0 !important;
+
+    font: 14px Arial, sans-serif !important;
+    color: #333 !important;
+    background: white !important;
+    border-bottom: 1px solid #ddd !important;
+    border-radius: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.dataentry #personnelSearch:focus {
+    background: #f9fff9 !important;
+}
+
+/* SCROLLABLE LIST */
+.dataentry #personnelOptions {
+    display: block !important;
+    width: 100%;
+    height: auto;
+    max-height: 210px !important;
+    min-height: 0;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box;
+}
+
+/* EMPLOYEE ROW */
+.dataentry #personnelOptions .multi-option {
+    display: flex !important;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+
+    width: 100%;
+    min-height: 42px;
+    height: auto;
+    padding: 10px 12px;
+    margin: 0;
+
+    background: white;
+    border-bottom: 1px solid #f1f1f1;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.dataentry #personnelOptions .multi-option:hover {
+    background: #f0fdf4;
+}
+
+.dataentry #personnelOptions .multi-option:has(input:checked) {
+    background: #e8f5e9;
+}
+
+/* CHECKBOX */
+.dataentry #personnelOptions
+.multi-option input[type="checkbox"] {
+    position: static !important;
+    display: block;
+    width: 17px !important;
+    height: 17px !important;
+    min-width: 17px;
+    flex: 0 0 17px;
+    padding: 0 !important;
+    margin: 0 !important;
+    transform: none !important;
+    accent-color: #047500;
+}
+
+/* EMPLOYEE NAME */
+.dataentry #personnelOptions .multi-option span {
+    position: static !important;
+    display: block;
+    flex: 1;
+    min-width: 0;
+
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+    color: #333 !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+}
+
+/* SELECTED NAME TAG */
+.dataentry .personnel-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+    padding: 5px 7px;
+    background: #e8f5e9;
+    color: #166534;
+    border-radius: 5px;
+}
+
+.dataentry .personnel-name {
+    font-size: 11px;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.dataentry .personnel-remove {
+    border: none;
+    background: transparent;
+    color: #b91c1c;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+/* SCROLLBAR */
+.dataentry #personnelOptions::-webkit-scrollbar {
+    width: 7px;
+}
+
+.dataentry #personnelOptions::-webkit-scrollbar-thumb {
+    background: #b4cbb8;
+    border-radius: 10px;
+}
+
+.dataentry {
+    overflow: visible !important;
+}
+
+
+
+/* ==========================================
+   BENRO-IICTS - PERSONNEL DROPDOWN FIX
+   ========================================== */
+
+.dataentry > .floating-input-group132 {
+    position: relative !important;
+    z-index: 9999 !important;
+    overflow: visible !important;
+}
+
+.dataentry .multi-select-wrapper {
+    position: relative !important;
+    width: 100% !important;
+    overflow: visible !important;
+}
+
+/* DROPDOWN CONTAINER */
+.dataentry #personnelDropdown {
+    display: none !important;
+    position: absolute !important;
+
+    top: calc(100% + 8px) !important;
+    left: 0 !important;
+
+    width: 100% !important;
+    min-width: 300px;
+    max-width: 420px;
+
+    height: auto !important;
+    max-height: 340px;
+
+    margin: 0 !important;
+    padding: 12px !important;
+
+    background: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 10px !important;
+
+    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+    box-sizing: border-box !important;
+
+    overflow: hidden !important;
+    z-index: 99999 !important;
+}
+
+/* OPEN DROPDOWN */
+.dataentry #personnelDropdown.show,
+.dataentry .multi-select-wrapper.open #personnelDropdown {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+}
+
+/* SEARCH INPUT - ALWAYS ON TOP */
+.dataentry #personnelSearch {
+    display: block !important;
+    position: static !important;
+
+    order: 0 !important;
+    flex: 0 0 44px !important;
+
+    width: 100% !important;
+    height: 44px !important;
+    min-height: 44px !important;
+
+    padding: 10px 12px !important;
+    margin: 0 !important;
+
+    background: #ffffff !important;
+    color: #222222 !important;
+
+    border: 1px solid #d1d5db !important;
+    border-radius: 7px !important;
+
+    font: 14px Arial, sans-serif !important;
+    line-height: normal !important;
+
+    box-sizing: border-box !important;
+    transform: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* IF PREVIOUS HTML HAS SEARCH WRAPPER */
+.dataentry .employee-search-area {
+    display: block !important;
+    order: 0 !important;
+    position: relative !important;
+    width: 100% !important;
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+}
+
+/* SCROLLABLE EMPLOYEE LIST */
+.dataentry #personnelOptions {
+    display: block !important;
+    order: 1 !important;
+
+    width: 100% !important;
+    height: 220px !important;
+    min-height: 0 !important;
+    max-height: 220px !important;
+
+    margin: 0 !important;
+    padding: 4px !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 7px;
+    box-sizing: border-box !important;
+}
+
+/* EMPLOYEE ROWS */
+.dataentry #personnelOptions .multi-option {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+
+    position: static !important;
+    width: 100% !important;
+    min-height: 42px !important;
+    height: auto !important;
+
+    gap: 10px !important;
+    padding: 9px 10px !important;
+    margin: 0 !important;
+
+    border: none !important;
+    border-radius: 6px;
+
+    background: #fff;
+    box-sizing: border-box !important;
+    cursor: pointer;
+}
+
+/* CHECKBOX FIX */
+.dataentry #personnelOptions
+.multi-option input[type="checkbox"] {
+    position: static !important;
+
+    display: block !important;
+    flex: 0 0 17px !important;
+
+    width: 17px !important;
+    height: 17px !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    transform: none !important;
+    accent-color: #047500;
+}
+
+/* EMPLOYEE NAME FIX */
+.dataentry #personnelOptions .multi-option span {
+    position: static !important;
+    display: block !important;
+
+    width: auto !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+    color: #333 !important;
+
+    transform: none !important;
+    white-space: normal !important;
+    overflow-wrap: break-word;
+}
+
+/* HOVER EFFECT */
+.dataentry #personnelOptions .multi-option:hover {
+    background: #f0fdf4 !important;
+}
+
+/* KEEP DROPDOWN OUTSIDE GROUP BOX */
+.dataentry {
+    overflow: visible !important;
+}
+
+/* SCROLLBAR */
+.dataentry #personnelOptions::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dataentry #personnelOptions::-webkit-scrollbar-thumb {
+    background: #a8c9ae;
+    border-radius: 10px;
+}
+
+
+
+
+/* ===== FIX PERSONNEL CHECKBOX CLICKING ===== */
+
+.dataentry #personnelOptions .multi-option {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}
+
+.dataentry #personnelOptions
+.multi-option input[type="checkbox"] {
+    appearance: auto !important;
+    -webkit-appearance: checkbox !important;
+
+    pointer-events: auto !important;
+    position: relative !important;
+
+    width: 18px !important;
+    height: 18px !important;
+
+    opacity: 1 !important;
+    visibility: visible !important;
+
+    z-index: 2;
+    cursor: pointer !important;
+    accent-color: #047500;
+}
+
+.dataentry #personnelOptions .multi-option span {
+    pointer-events: none !important;
+}
+
+
+
+
+/* ==========================================
+   PERSONNEL SELECT ALL / CLEAR ALL BUTTONS
+   ========================================== */
+
+.dataentry #personnelDropdown .personnel-toolbar {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 4px 2px;
+    margin: 0;
+    border-top: 1px solid #e5e7eb;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.dataentry .personnel-count {
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap;
+}
+
+.dataentry .personnel-toolbar-buttons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.dataentry .personnel-toolbar-buttons button {
+    border: none;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+}
+
+/* SELECT ALL */
+.dataentry .personnel-select-all {
+    background: #e8f5e9;
+    color: #047500;
+}
+
+.dataentry .personnel-select-all:hover {
+    background: #c8e6c9;
+}
+
+/* CLEAR ALL */
+.dataentry .personnel-clear-all {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.dataentry .personnel-clear-all:hover {
+    background: #fecaca;
+}
+
+
+
+
+/* =========================================
+   BENRO-IICTS DIVISION MULTI-SELECT
+   ========================================= */
+
+.dataentry > .floating-input-group13 {
+    position: relative;
+    z-index: 900;
+    min-width: 0;
+    overflow: visible;
+}
+
+.division-multi-wrapper {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+}
+
+/* MAIN BOX */
+.division-multi-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 56px;
+    padding: 10px 14px;
+    background: white;
+    border: 2px solid #d1d5db;
+    border-radius: 9px;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.division-multi-box:hover,
+.division-multi-box:focus-visible {
+    border-color: #4CAF50;
+    outline: none;
+}
+
+.division-multi-display {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    flex: 1;
+    min-width: 0;
+    max-height: 96px;
+    overflow-y: auto;
+}
+
+.division-placeholder {
+    color: #888;
+    font-size: 16px;
+}
+
+.division-arrow {
+    color: #666;
+    font-size: 12px;
+    margin-left: 8px;
+}
+
+/* SELECTED DIVISION TAG */
+.division-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    max-width: 100%;
+    padding: 5px 8px;
+    background: #e8f5e9;
+    color: #166534;
+    border-radius: 5px;
+    font-size: 11px;
+}
+
+.division-tag-name {
+    overflow-wrap: anywhere;
+}
+
+.division-tag-remove {
+    border: none;
+    background: transparent;
+    color: #b91c1c;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+/* DROPDOWN */
+.division-multi-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    width: 100%;
+    min-width: 300px;
+    padding: 10px;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.16);
+    box-sizing: border-box;
+    z-index: 99999;
+}
+
+.division-multi-dropdown.show {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+/* SEARCH BOX */
+.dataentry #divisionSearch {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    height: 42px !important;
+    margin: 0 !important;
+    padding: 10px 12px !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 7px !important;
+    background: white !important;
+    font-size: 13px !important;
+    box-sizing: border-box !important;
+}
+
+/* SCROLLABLE DIVISIONS */
+#divisionOptions {
+    display: block;
+    width: 100%;
+    max-height: 210px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border: 1px solid #e5e7eb;
+    border-radius: 7px;
+}
+
+/* DIVISION ROW */
+.division-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+    min-height: 42px;
+    padding: 10px;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.division-option:hover {
+    background: #f0fdf4;
+}
+
+.division-option:has(input:checked) {
+    background: #e8f5e9;
+}
+
+/* CHECKBOX */
+.dataentry .division-option input[type="checkbox"] {
+    position: static !important;
+    display: block !important;
+    width: 17px !important;
+    height: 17px !important;
+    flex: 0 0 17px;
+    padding: 0 !important;
+    margin: 0 !important;
+    accent-color: #047500;
+    pointer-events: auto !important;
+}
+
+/* DIVISION TEXT */
+.division-option span {
+    position: static !important;
+    flex: 1;
+    min-width: 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #333;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+/* BOTTOM BUTTONS */
+.division-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 8px 0 0;
+    border-top: 1px solid #e5e7eb;
+}
+
+#divisionCount {
+    color: #666;
+    font-size: 12px;
+}
+
+.division-toolbar-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+.division-toolbar-buttons button {
+    border: none;
+    border-radius: 6px;
+    padding: 7px 9px;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+#divisionSelectAll {
+    background: #e8f5e9;
+    color: #047500;
+}
+
+#divisionClearAll {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+#divisionOptions::-webkit-scrollbar {
+    width: 7px;
+}
+
+#divisionOptions::-webkit-scrollbar-thumb {
+    background: #b4cbb8;
+    border-radius: 10px;
+}
+
+@media (max-width: 650px) {
+    .division-multi-dropdown {
+        min-width: 0;
+    }
+}
+
+
+/* ===== FIX DIVISION MULTI-SELECT DROPDOWN ===== */
+
+.dataentry > .floating-input-group13 {
+    position: relative !important;
+    z-index: 1000 !important;
+    overflow: visible !important;
+}
+
+.dataentry #divisionWrapper {
+    position: relative !important;
+    width: 100% !important;
+    min-width: 0;
+    overflow: visible !important;
+}
+
+/* Division selection box */
+.dataentry #divisionSelectBox {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    position: relative !important;
+    width: 100% !important;
+    min-height: 56px;
+    padding: 10px 14px;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    z-index: 2;
+    box-sizing: border-box;
+}
+
+/* Allow clicking the entire selection box */
+.dataentry #divisionDisplay,
+.dataentry .division-arrow {
+    pointer-events: none;
+}
+
+/* Keep remove buttons clickable */
+.dataentry .division-tag-remove {
+    pointer-events: auto !important;
+}
+
+/* Dropdown panel */
+.dataentry #divisionDropdown {
+    display: none !important;
+    position: absolute !important;
+    top: calc(100% + 6px) !important;
+    left: 0 !important;
+
+    width: 100% !important;
+    min-width: 300px;
+    height: auto !important;
+    max-height: 340px;
+
+    margin: 0 !important;
+    padding: 10px !important;
+
+    background: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.18);
+
+    overflow: hidden !important;
+    z-index: 99999 !important;
+    box-sizing: border-box !important;
+}
+
+/* Open dropdown */
+.dataentry #divisionDropdown.show {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 9px;
+}
+
+/* Search input */
+.dataentry #divisionSearch {
+    display: block !important;
+    position: static !important;
+
+    width: 100% !important;
+    height: 42px !important;
+    min-height: 42px !important;
+
+    margin: 0 !important;
+    padding: 10px 12px !important;
+
+    border: 1px solid #d1d5db !important;
+    background: white !important;
+    border-radius: 7px !important;
+    box-sizing: border-box !important;
+
+    pointer-events: auto !important;
+    font-size: 13px !important;
+}
+
+/* Scrollable division options */
+.dataentry #divisionOptions {
+    display: block !important;
+    width: 100%;
+    max-height: 210px !important;
+    min-height: 0;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+/* Prevent group box clipping */
+.dataentry {
+    overflow: visible !important;
+}
+
+
+
+
+
+/* ==============================================
+   BENRO-IICTS - DIVISION DROPDOWN CSS FIX
+   ============================================== */
+
+/* KEEP DIVISION FIELD IN ITS ORIGINAL POSITION */
+.dataentry > .floating-input-group13 {
+    position: relative !important;
+    z-index: 1000 !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+}
+
+.dataentry #divisionWrapper {
+    position: relative !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+}
+
+/* DIVISION MAIN FIELD */
+.dataentry #divisionSelectBox {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+
+    width: 100% !important;
+    min-height: 56px !important;
+    padding: 10px 14px !important;
+
+    border: 2px solid #d1d5db;
+    border-radius: 10px;
+    background: #fff;
+    box-sizing: border-box !important;
+    cursor: pointer;
+}
+
+.dataentry #divisionSelectBox:hover,
+.dataentry #divisionSelectBox:focus-visible {
+    border-color: #4CAF50 !important;
+}
+
+/* DROPDOWN PANEL */
+.dataentry #divisionDropdown {
+    display: none !important;
+    position: absolute !important;
+
+    top: calc(100% + 7px) !important;
+    left: 0 !important;
+    right: auto !important;
+
+    width: 100% !important;
+    min-width: 300px !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: 350px !important;
+
+    padding: 12px !important;
+    margin: 0 !important;
+
+    background: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.16);
+
+    box-sizing: border-box !important;
+    overflow: visible !important;
+    z-index: 99999 !important;
+}
+
+/* SHOW WHEN CLICKED */
+.dataentry #divisionDropdown.show {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+}
+
+/* SEARCH BOX */
+.dataentry #divisionSearch {
+    display: block !important;
+    position: static !important;
+    order: 0 !important;
+
+    flex: 0 0 42px !important;
+
+    width: 100% !important;
+    height: 42px !important;
+    min-height: 42px !important;
+
+    margin: 0 !important;
+    padding: 10px 12px !important;
+
+    background: white !important;
+    color: #222 !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 7px !important;
+
+    font: 13px Arial, sans-serif !important;
+    box-sizing: border-box !important;
+
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: none !important;
+}
+
+.dataentry #divisionSearch:focus {
+    outline: none !important;
+    border-color: #4CAF50 !important;
+}
+
+/* SCROLLABLE LIST - MAIN FIX */
+.dataentry #divisionOptions {
+    display: block !important;
+    position: relative !important;
+    order: 1 !important;
+
+    flex: 0 1 auto !important;
+
+    width: 100% !important;
+    height: 220px !important;
+    min-height: 0 !important;
+    max-height: 220px !important;
+
+    margin: 0 !important;
+    padding: 4px !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: white;
+
+    box-sizing: border-box !important;
+}
+
+/* EACH DIVISION ROW */
+.dataentry #divisionOptions .division-option {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+
+    position: relative !important;
+    width: 100% !important;
+
+    height: auto !important;
+    min-height: 46px !important;
+
+    margin: 0 !important;
+    padding: 10px !important;
+    gap: 10px !important;
+
+    border: none !important;
+    border-bottom: 1px solid #f1f1f1 !important;
+    border-radius: 5px;
+
+    background: #fff;
+    box-sizing: border-box !important;
+    cursor: pointer;
+}
+
+/* CHECKBOX ALIGNMENT */
+.dataentry #divisionOptions
+.division-option input[type="checkbox"] {
+    appearance: auto !important;
+    -webkit-appearance: checkbox !important;
+
+    display: block !important;
+    position: static !important;
+
+    flex: 0 0 18px !important;
+
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+
+    margin: 2px 0 0 !important;
+    padding: 0 !important;
+
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    accent-color: #047500;
+}
+
+/* LONG DIVISION NAMES */
+.dataentry #divisionOptions .division-option span {
+    display: block !important;
+    position: static !important;
+
+    flex: 1 !important;
+    min-width: 0 !important;
+    width: auto !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    color: #333 !important;
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    transform: none !important;
+}
+
+/* HOVER AND SELECTED */
+.dataentry #divisionOptions .division-option:hover {
+    background: #f0fdf4 !important;
+}
+
+.dataentry #divisionOptions
+.division-option:has(input:checked) {
+    background: #e8f5e9 !important;
+}
+
+/* FIXED BUTTON TOOLBAR */
+.dataentry #divisionDropdown .division-toolbar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-shrink: 0 !important;
+
+    order: 2 !important;
+    gap: 8px !important;
+
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 10px 0 0 !important;
+
+    background: #fff !important;
+    border-top: 1px solid #e5e7eb;
+    box-sizing: border-box !important;
+}
+
+.dataentry .division-toolbar-buttons {
+    display: flex !important;
+    gap: 6px !important;
+    flex-shrink: 0 !important;
+}
+
+/* SCROLLBAR */
+.dataentry #divisionOptions::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dataentry #divisionOptions::-webkit-scrollbar-track {
+    background: #f1f5f1;
+}
+
+.dataentry #divisionOptions::-webkit-scrollbar-thumb {
+    background: #a8c9ae;
+    border-radius: 10px;
+}
+
+/* PREVENT DROPDOWN FROM BEING CLIPPED */
+.dataentry {
+    overflow: visible !important;
+}
+
+.dataentry .floating-input-group13 {
+    overflow: visible !important;
+}
+
+
+
+
+/* DIVISION AND PERSONNEL IN-CHARGE DATAGRID */
+
+#dataGrid tbody td:nth-child(9),
+#dataGrid tbody td:nth-child(10) {
+    white-space: pre-line !important;
+    vertical-align: top !important;
+    text-align: left !important;
+
+    min-width: 220px;
+    max-width: 350px;
+
+    padding: 12px 15px;
+    line-height: 1.7;
+
+    overflow-wrap: anywhere;
+}
+
