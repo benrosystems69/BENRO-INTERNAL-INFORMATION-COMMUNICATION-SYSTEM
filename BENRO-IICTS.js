@@ -953,7 +953,7 @@ if (logoutBtn) {
       localStorage.removeItem("benroProfile");
       localStorage.removeItem("instructionStore");
 
-      window.location.href = "BENRO-IICTS_LOGIN.html";
+      window.location.href = "index.html";
     }, 900);
   });
 }
