@@ -1,5 +1,5 @@
 const googleSheetsUrl =
-  "https://script.google.com/macros/s/AKfycbwDRfkY0lj5xY4BxKYHkrcSBxo4HdLQ2TAX3WZpTxJjk1gZCbVpFTQ2JWmlx2pKRkVZ/exec";
+  "https://script.google.com/macros/s/AKfycbxoEbMCSZDHLeTr-NP5Kds6iVZdHc33ORjoKsIJyyMwWqz-dy40IG8b0varzvA5A45T/exec";
 
 const personnelUrl =
   "https://script.google.com/macros/s/AKfycbzAxaoxDBHLfN9Dqu6FNzW_p7XNfbZSdnLtfAJmC53YEGr1lfgW0kGrHQLizY3Eg99j/exec";
